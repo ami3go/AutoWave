@@ -78,19 +78,35 @@ class com_interface:
         self.ser.close()
         self.ser = None
 
-    def __get_staus_code(self, error_num):
-
-        return status_code_array[error_number]
-    def run_test_file(self, file_name):
+    def run_test_file(self, file_name, echo="on"):
         # to do:  no/off echo mode
+
         txt = self.query(self.cmd.file.get_dir_download.str())
         self.download_dir = txt.replace("DIR DOWD:","")
         print(self.query(self.cmd.file.file_transmit.path(self.download_dir+file_name)))
         print(self.query(self.cmd.mode.gen.str()))
         print(self.query(self.cmd.file.select.path(file_name)))
-        print(self.query("TRIG:GEN 1"))
+        print(self.query(self.cmd.trigGen.manual_start.str()))
         print(self.query(self.cmd.start_test.str()))
         print(self.query(self.cmd.start_test.str()))
+
+    def run_test_file2(self, file_name, echo="on"):
+        # to do:  no/off echo mode
+        txt = self.query(self.cmd.file.get_dir_download.str())
+        self.download_dir = txt.replace("DIR DOWD:", "")
+
+        cmd_list[0] = self.cmd.file.file_transmit.path(self.download_dir + file_name)
+        cmd_list[1] = self.cmd.mode.gen.str()
+        cmd_list[2] = self.cmd.file.select.path(file_name)
+        cmd_list[3] = self.cmd.trigGen.manual_start.str()
+        cmd_list[4] = self.cmd.start_test.str()
+        cmd_list[5] = self.cmd.start_test.str()
+
+        for item in cmd_list:
+            txt = self.query(item)
+            if echo = "on":
+                print(txt)
+
 
     def get_test_time(self, file_name ):
         pass
@@ -230,6 +246,7 @@ class storage:
         self.set_date = str_param3("DAT")
         self.req_date = req3("DAT")
         self.file = file("")
+        self.trigGen = trig_gen("")
 
 
 
@@ -241,6 +258,21 @@ class mode(req3):
         self.gen = str3(self.prefix + " GEN")
         self.rec = str3(self.prefix + " REC")
         self.gen_and_rec = str3(self.prefix + " GNRC")
+
+class trig_gen():
+    def __init__(self, prefix):
+        self.prefix = "TRIG:GEN"
+        self.cmd = self.prefix
+        self.off = str3(self.prefix + " 0")
+        self.manual_start = str3(self.prefix + " 1")
+        self.trigIn_start = str3(self.prefix + " 2")
+        self.auto = str3(self.prefix + " 3")
+        self.manual_event = str3(self.prefix + " 4")
+        self.trigIn_event = str3(self.prefix + " 5")
+        self.manual_iter = str3(self.prefix + " 6")
+        self.trigIn_iter = str3(self.prefix + " 7")
+
+
 
 class set_voltage():
     def __init__(self, prefix):
