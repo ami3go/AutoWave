@@ -67,9 +67,11 @@ class com_interface:
         # will put sending command here
         # print(f'Sending: {txt}')
         self.inst.write(txt)
+        delay()
 
     def query(self, cmd_str):
         return_val = self.inst.query(cmd_str)
+        delay()
         return return_val
 
     def close(self):
@@ -84,17 +86,11 @@ class com_interface:
         txt = self.query(self.cmd.file.get_dir_download.str())
         self.download_dir = txt.replace("DIR DOWD:","")
         print(self.query(self.cmd.file.file_transmit.path(self.download_dir+file_name)))
-        delay()
         print(self.query(self.cmd.mode.gen.str()))
-        delay()
         print(self.query(self.cmd.file.select.path(file_name)))
-        delay()
         print(self.query("TRIG:GEN 1"))
-        delay()
         print(self.query(self.cmd.start_test.str()))
-        delay()
         print(self.query(self.cmd.start_test.str()))
-        delay()
 
     def get_test_time(self, file_name ):
         pass

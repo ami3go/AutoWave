@@ -8,6 +8,6 @@ inst.init()
 inst.run_test_file(inst_test_file)
 for i in range(10):
     print(inst.check_test_status())
-    time.sleep(1)
+    time.sleep(5)
 
 
