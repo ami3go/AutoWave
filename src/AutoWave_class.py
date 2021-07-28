@@ -44,6 +44,8 @@ class com_interface:
         self.res_name = None
         print(self.rm)
         self.inst = None
+        self.download_dir = None
+        self.cmd = storage()
 
         #self.app = self.rm.open_resource(INSTRUMENT_VISA_ADDRESS)
 
@@ -66,7 +68,7 @@ class com_interface:
         # print(f'Sending: {txt}')
         self.inst.write(txt)
 
-    def query(self, cmd_srt):
+    def query(self, cmd_str):
         return_val = self.inst.query(cmd_str)
         return return_val
 
@@ -75,8 +77,29 @@ class com_interface:
         self.ser = None
 
     def __get_staus_code(self, error_num):
-        error_number = int(error_num)
-        error_number = range_check(error_number,0, 13)
+
+        return status_code_array[error_number]
+    def run_test_file(self, file_name):
+        # to do:  no/off echo mode
+        txt = self.query(self.cmd.file.get_dir_download.str())
+        self.download_dir = txt.replace("DIR DOWD:","")
+        print(self.query(self.cmd.file.file_transmit.path(self.download_dir+file_name)))
+        delay()
+        print(self.query(self.cmd.mode.gen.str()))
+        delay()
+        print(self.query(self.cmd.file.select.path(file_name)))
+        delay()
+        print(self.query("TRIG:GEN 1"))
+        delay()
+        print(self.query(self.cmd.start_test.str()))
+        delay()
+        print(self.query(self.cmd.start_test.str()))
+        delay()
+
+    def get_test_time(self, file_name ):
+        pass
+
+    def check_test_status(self):
         status_code_array = ["stopped",
                              "ready",
                              "started",
@@ -90,12 +113,26 @@ class com_interface:
                              "undefined",
                              "write to file",
                              "file processing", ]
-        return status_code_array[error_number]
-
-
-
-
-
+        replay = [
+                   ["OUT1:", "" , ""],
+                   ["OUT2:", "", ""],
+                   ["OUT3:", "", ""],
+                   ["OUT4:", "", ""],
+                   ["IN 1:", "", ""],
+                   ["IN 1:", "", ""],
+                   ["DUT:", "", ""],
+        ]
+        status_rep = self.query(self.cmd.status.read_test_status.str())
+        # print(status_rep)
+        st = status_rep.replace("STAT TEST:", "")
+        st = st.split(",")
+        # print("st:", st)
+        i = 0
+        for code in st:
+            replay[i][2] = code
+            replay[i][1] = status_code_array[int(code)]
+            i=i+1
+        return replay
 
 
 class req3:
@@ -188,12 +225,11 @@ class storage:
         self.protocol = req_on_off("*PRCL:")
         self.status = status()
         self.stop_test = str3("STOP")
-        self.start_test = str3("START")
+        self.start_test = str3("STAR")
         self.break_test = str3("BREAK")
         self.mode = mode("MOD")
         self.setVoltage = set_voltage("VSET")
         self.setOffset = set_voltage("VOFS")
-        self.sel_file = str_param3("SOUR SEGM")
         self.display = str_param3("DISP")
         self.set_date = str_param3("DAT")
         self.req_date = req3("DAT")
@@ -206,16 +242,16 @@ class mode(req3):
         self.prefix = prefix
         self.cmd = self.prefix
         # self.req = req3(self.prefix)
-        self.gen = str3(self.prefix + ":GEN")
-        self.rec = str3(self.prefix + ":REC")
-        self.gen_and_rec = str3(self.prefix + ":GNRC")
+        self.gen = str3(self.prefix + " GEN")
+        self.rec = str3(self.prefix + " REC")
+        self.gen_and_rec = str3(self.prefix + " GNRC")
 
 class set_voltage():
     def __init__(self, prefix):
         self.prefix = prefix
         self.cmd = self.prefix
         # self.req = req3(self.prefix)
-        self.out1 = dig_param3(self.prefix + ":OUT1", 0,60)
+        self.out1 = dig_param3(self.prefix + ":OUT1", 0, 60)
         self.out2 = dig_param3(self.prefix + ":OUT2", 0, 60)
         self.out3 = dig_param3(self.prefix + ":OUT3", 0, 60)
         self.out4 = dig_param3(self.prefix + ":OUT4", 0, 60)
@@ -236,6 +272,7 @@ class file():
         self.prefix = prefix
         self.cmd = self.prefix
         self.delete = str_param3("DEL")
+        self.get_file_list = str_param3("DIR?")
         self.get_dir_download = str3("DIR? DOWD")
         self.get_dir_record = str3("DIR? RECD")
         self.get_dir_upgrade = str3("DIR? UPGD")
@@ -246,21 +283,22 @@ class file():
         self.check_file_exist = str_param3("CKFL?")
         self.check_file_details = str_param3("CKLF?")
         self.check_total_duration = str_param3("CKFD?")
+        self.select = str_param3("SOUR SEGM")
 
 class status:
     def __init__(self):
         print("INIT Status")
         self.cmd = "STAT?"
         self.prefix = "STAT?"
-        self.sys_ver = str3(self.prefix + "SYST")
-        self.read_mac = str3(self.prefix + "MAC")
-        self.read_out1_status = str3(self.prefix + "OUT1")
-        self.read_out2_status = str3(self.prefix + "OUT2")
-        self.read_out3_status= str3(self.prefix + "OUT3")
-        self.read_out4_status= str3(self.prefix + "OUT4")
-        self.read_in1_status = str3(self.prefix + "IN1")
-        self.read_in2_status = str3(self.prefix + "IN2")
-        self.read_test_status = str3(self.prefix + "TEST")
+        self.sys_ver = str3(self.prefix + " SYST")
+        self.read_mac = str3(self.prefix + " MAC")
+        self.read_out1_status = str3(self.prefix + " OUT1")
+        self.read_out2_status = str3(self.prefix + " OUT2")
+        self.read_out3_status= str3(self.prefix + " OUT3")
+        self.read_out4_status= str3(self.prefix + " OUT4")
+        self.read_in1_status = str3(self.prefix + " IN1")
+        self.read_in2_status = str3(self.prefix + " IN2")
+        self.read_test_status = str3(self.prefix + " TEST")
 
 
 
@@ -273,6 +311,7 @@ if __name__ == '__main__':
     print("")
     print("TOP LEVEL")
     print(cmd.idn.req())
+    print(cmd.protocol.off.str())
     print(cmd.reset.str())
     print(cmd.echo.on.str())
     print(cmd.echo.req())
@@ -283,3 +322,4 @@ if __name__ == '__main__':
     print(cmd.setVoltage.out4.val(10.5))
     print(cmd.setOffset.out1.val(2))
     print(cmd.file.get_file_size.path("txt.file"))
+    print(cmd.file.get_file_list.path("inst_folder"))
