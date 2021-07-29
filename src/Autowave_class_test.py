@@ -5,7 +5,7 @@ inst_test_file = "Ford ES-XW7T-1A278-AC - CI210 -.dsg"
 cmd = AutoWave_class.storage()
 inst = AutoWave_class.com_interface()
 inst.init()
-inst.run_test_file(inst_test_file)
+inst.run_test_file(inst_test_file, echo="off")
 for i in range(10):
     print(inst.check_test_status())
     time.sleep(5)

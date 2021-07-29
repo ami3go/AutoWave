@@ -78,33 +78,33 @@ class com_interface:
         self.ser.close()
         self.ser = None
 
+    # def run_test_file(self, file_name, echo="on"):
+    #     # to do:  no/off echo mode
+    #
+    #     txt = self.query(self.cmd.file.get_dir_download.str())
+    #     self.download_dir = txt.replace("DIR DOWD:","")
+    #     print(self.query(self.cmd.file.file_transmit.path(self.download_dir+file_name)))
+    #     print(self.query(self.cmd.mode.gen.str()))
+    #     print(self.query(self.cmd.file.select.path(file_name)))
+    #     print(self.query(self.cmd.trigGen.manual_start.str()))
+    #     print(self.query(self.cmd.start_test.str()))
+    #     print(self.query(self.cmd.start_test.str()))
+
     def run_test_file(self, file_name, echo="on"):
-        # to do:  no/off echo mode
-
-        txt = self.query(self.cmd.file.get_dir_download.str())
-        self.download_dir = txt.replace("DIR DOWD:","")
-        print(self.query(self.cmd.file.file_transmit.path(self.download_dir+file_name)))
-        print(self.query(self.cmd.mode.gen.str()))
-        print(self.query(self.cmd.file.select.path(file_name)))
-        print(self.query(self.cmd.trigGen.manual_start.str()))
-        print(self.query(self.cmd.start_test.str()))
-        print(self.query(self.cmd.start_test.str()))
-
-    def run_test_file2(self, file_name, echo="on"):
         # to do:  no/off echo mode
         txt = self.query(self.cmd.file.get_dir_download.str())
         self.download_dir = txt.replace("DIR DOWD:", "")
-
-        cmd_list[0] = self.cmd.file.file_transmit.path(self.download_dir + file_name)
-        cmd_list[1] = self.cmd.mode.gen.str()
-        cmd_list[2] = self.cmd.file.select.path(file_name)
-        cmd_list[3] = self.cmd.trigGen.manual_start.str()
-        cmd_list[4] = self.cmd.start_test.str()
-        cmd_list[5] = self.cmd.start_test.str()
+        cmd_list = []
+        cmd_list.append(self.cmd.file.file_transmit.path(self.download_dir + file_name))
+        cmd_list.append(self.cmd.mode.gen.str())
+        cmd_list.append(self.cmd.file.select.path(file_name))
+        cmd_list.append(self.cmd.trigGen.manual_start.str())
+        cmd_list.append(self.cmd.start_test.str())
+        cmd_list.append(self.cmd.start_test.str())
 
         for item in cmd_list:
             txt = self.query(item)
-            if echo = "on":
+            if echo == "on":
                 print(txt)
 
 
