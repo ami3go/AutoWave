@@ -73,12 +73,16 @@ class com_interface:
         delay()
 
     def query(self, cmd_str):
+        # delay and retry in cause of old device with slow processing time
+        # cycle will make 10 attempts before everything will get crashed.
         for i in range(10):
             try:
+                # debug print to check how may tries
                 #print("trying",i)
                 return_val = self.inst.query(cmd_str)
-                delay()
+                delay() # regular delay according to datasheet before next command
                 return return_val
+
             except:
                 print("VI_ERROR_TMO, retry:", i)
                 delay(5)
@@ -94,12 +98,8 @@ class com_interface:
         txt = self.query(self.cmd.file.get_dir_download.str())
         self.download_dir = txt.replace("DIR DOWD:","")
         self.download_dir = self.download_dir + "/"
-        # print(self.send(self.cmd.file.TRLF.path(self.download_dir+file_name)))
-        # delay(5)
         print(self.query(self.cmd.file.TRLF.path(self.download_dir + file_name)))
         delay(5)
-        # print(self.send(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
-        # delay(5)
         print(self.query(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
         delay(5)
 
