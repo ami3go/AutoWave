@@ -1,6 +1,7 @@
 
 import time
 import pyvisa # PyVisa info @ http://PyVisa.readthedocs.io/en/stable/
+import datetime
 
 
 #It is recommended to use a minimum delay of 250ms between two commands
@@ -46,6 +47,7 @@ class com_interface:
         self.inst = None
         self.download_dir = None
         self.cmd = storage()
+        self.start_time = None
 
         #self.app = self.rm.open_resource(INSTRUMENT_VISA_ADDRESS)
 
@@ -58,8 +60,9 @@ class com_interface:
         self.inst = self.rm.open_resource(self.res_name)
         self.inst.set_visa_attribute(pyvisa.constants.VI_ATTR_SEND_END_EN, 1)
         self.inst.write_termination = ""
+        self.inst.timeout = 2000 # timeout in ms
         print("Connected to: ", self.inst.query("*IDN?"))
-        print("Protocol OFF: ",self.inst.query("*PRCL:OFF"))
+        print("Protocol OFF: ", self.inst.query("*PRCL:OFF"))
         print(self.inst.query("*ECHO:ON"))
 
 
@@ -70,48 +73,96 @@ class com_interface:
         delay()
 
     def query(self, cmd_str):
-        return_val = self.inst.query(cmd_str)
-        delay()
-        return return_val
+        for i in range(10):
+            try:
+                #print("trying",i)
+                return_val = self.inst.query(cmd_str)
+                delay()
+                return return_val
+            except:
+                print("VI_ERROR_TMO, retry:", i)
+                delay(5)
+
 
     def close(self):
         self.ser.close()
         self.ser = None
 
-    # def run_test_file(self, file_name, echo="on"):
-    #     # to do:  no/off echo mode
-    #
-    #     txt = self.query(self.cmd.file.get_dir_download.str())
-    #     self.download_dir = txt.replace("DIR DOWD:","")
-    #     print(self.query(self.cmd.file.file_transmit.path(self.download_dir+file_name)))
-    #     print(self.query(self.cmd.mode.gen.str()))
-    #     print(self.query(self.cmd.file.select.path(file_name)))
-    #     print(self.query(self.cmd.trigGen.manual_start.str()))
-    #     print(self.query(self.cmd.start_test.str()))
-    #     print(self.query(self.cmd.start_test.str()))
-
     def run_test_file(self, file_name, echo="on"):
         # to do:  no/off echo mode
+
         txt = self.query(self.cmd.file.get_dir_download.str())
-        self.download_dir = txt.replace("DIR DOWD:", "")
-        cmd_list = []
-        cmd_list.append(self.cmd.file.file_transmit.path(self.download_dir + file_name))
-        cmd_list.append(self.cmd.mode.gen.str())
-        cmd_list.append(self.cmd.file.select.path(file_name))
-        cmd_list.append(self.cmd.trigGen.manual_start.str())
-        cmd_list.append(self.cmd.start_test.str())
-        cmd_list.append(self.cmd.start_test.str())
+        self.download_dir = txt.replace("DIR DOWD:","")
+        self.download_dir = self.download_dir + "/"
+        # print(self.send(self.cmd.file.TRLF.path(self.download_dir+file_name)))
+        # delay(5)
+        print(self.query(self.cmd.file.TRLF.path(self.download_dir + file_name)))
+        delay(5)
+        # print(self.send(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
+        # delay(5)
+        print(self.query(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
+        delay(5)
 
-        for item in cmd_list:
-            txt = self.query(item)
-            if echo == "on":
-                print(txt)
+        print(self.query(self.cmd.mode.gen.str()))
+        delay(1)
+        print(self.query(self.cmd.file.select.path(file_name)))
+        delay(1)
+        print(self.query(self.cmd.trigGen.manual_start.str()))
+        delay(1)
+        print(self.query(self.cmd.start_test.str()))
+        delay(1)
+        print(self.query(self.cmd.start_test.str()))
+        delay(1)
+
+    # def run_test_file(self, file_name, echo="on"):
+    #     # to do:  no/off echo mode
+    #     txt = self.query(self.cmd.file.get_dir_download.str())
+    #     self.download_dir = txt.replace("DIR DOWD:", "")
+    #
+    #     replay = self.cmd.file.file_upload.path(self.download_dir + file_name)
+    #     delay(5)
+    #     status = replay[-3:]
+    #     if status == "ERR":
+    #         self.cmd.file.file_transmit.path(self.download_dir + file_name)
+    #
+    #     cmd_list = []
+    #     delay_list = []
+    #
+    #
+    #     cmd_list.append(self.cmd.mode.gen.str())
+    #     delay_list.append(5)
+    #     cmd_list.append(self.cmd.file.select.path(file_name))
+    #     delay_list.append(5)
+    #     cmd_list.append(self.cmd.trigGen.manual_start.str())
+    #     delay_list.append(5)
+    #     cmd_list.append(self.cmd.start_test.str())
+    #     delay_list.append(1)
+    #     cmd_list.append(self.cmd.start_test.str())
+    #     delay_list.append(1)
+    #     i=0
+    #     for item in cmd_list:
+    #         txt = self.query(item)
+    #         delay(delay_list[i])
+    #         i = i+1
+    #         if echo == "on":
+    #             print(txt)
 
 
-    def get_test_time(self, file_name ):
-        pass
+    def get_test_time(self, file_name, echo="on" ):
+        # Ask for duration, channels, events, trigger and master channel of a test file
+        # typical responce
+        # CKLF Ford ES-XW7T-1A278-AC - CI210 -.dsg:31.000000, 1, 1, 3, 0, 0;'
+        txt = self.query(self.cmd.file.check_details.path(file_name))
+        txt = txt.split(":") # get text and digits separated
+        txt = txt[1] # select only digits array
+        txt = txt.split(",") # separate digits
+        time_in_sec = float(txt[0]) # selec first digit
+        if echo == "on":
+            print(f"Test Duration: {datetime.timedelta(seconds=round(time_in_sec))} , File:{file_name}, Channel:{txt[1]}, Events:{txt[2]}")
+        return time_in_sec
 
     def check_test_status(self):
+        # responce [['OUT1:', 'finished', '8'], ['OUT2:', 'finished', '8'], ['OUT3:', 'finished', '8'], ['OUT4:', 'finished', '8'], ['IN 1:', 'fast', '4'], ['IN 1:', 'fast', '4'], ['DUT:', 'stopped', '0']]
         status_code_array = ["stopped",
                              "ready",
                              "started",
@@ -146,6 +197,11 @@ class com_interface:
             i=i+1
         return replay
 
+    def disconnect(self):
+        self.send(self.cmd.go_to_local.str())
+
+    def reboot(self):
+        self.send(self.cmd.reboot.str())
 
 class req3:
     def __init__(self, prefix):
@@ -306,10 +362,10 @@ class file():
         self.get_dir_upgrade = str3("DIR? UPGD")
         self.get_dir_upgrade = str3("DIR? LOGD")
         self.get_file_size = str_param3("SIZ?")
-        self.file_transmit = str_param3("TRFL")
-        self.file_upload = str_param3("TRFL?")
+        self.TRLF = str_param3("TRFL")
+        self.TRLF_req = str_param3("TRFL?")
         self.check_file_exist = str_param3("CKFL?")
-        self.check_file_details = str_param3("CKLF?")
+        self.check_details = str_param3("CKLF?")
         self.check_total_duration = str_param3("CKFD?")
         self.select = str_param3("SOUR SEGM")
 
@@ -351,3 +407,12 @@ if __name__ == '__main__':
     print(cmd.setOffset.out1.val(2))
     print(cmd.file.get_file_size.path("txt.file"))
     print(cmd.file.get_file_list.path("inst_folder"))
+
+    cmd_list = []
+    cmd_list.append(cmd.file.file_transmit.path("file_name"))
+    cmd_list.append(cmd.mode.gen.str())
+    cmd_list.append(cmd.file.select.path("file_name"))
+    cmd_list.append(cmd.trigGen.manual_start.str())
+    cmd_list.append(cmd.start_test.str())
+    cmd_list.append(cmd.start_test.str())
+    print(cmd_list)
