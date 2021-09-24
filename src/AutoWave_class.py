@@ -2,6 +2,7 @@
 import time
 import pyvisa # PyVisa info @ http://PyVisa.readthedocs.io/en/stable/
 import datetime
+import codecs
 
 
 #It is recommended to use a minimum delay of 250ms between two commands
@@ -71,6 +72,8 @@ class com_interface:
         # print(f'Sending: {txt}')
         self.inst.write(txt)
         delay()
+    def psend(self, txt):
+        pass
 
     def query(self, cmd_str):
         # delay and retry in cause of old device with slow processing time
@@ -102,7 +105,6 @@ class com_interface:
         delay(5)
         print(self.query(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
         delay(5)
-
         print(self.query(self.cmd.mode.gen.str()))
         delay(1)
         print(self.query(self.cmd.file.select.path(file_name)))
@@ -409,7 +411,7 @@ if __name__ == '__main__':
     print(cmd.file.get_file_list.path("inst_folder"))
 
     cmd_list = []
-    cmd_list.append(cmd.file.file_transmit.path("file_name"))
+    #cmd_list.append(cmd.file.file_transmit.path("file_name"))
     cmd_list.append(cmd.mode.gen.str())
     cmd_list.append(cmd.file.select.path("file_name"))
     cmd_list.append(cmd.trigGen.manual_start.str())
