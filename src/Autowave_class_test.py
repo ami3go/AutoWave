@@ -47,10 +47,5 @@ for test in WaveFormA:
     #inst.reboot()
     time.sleep(5)
 
-
-# for i in range(10):
-#     timer.check_time()
-#     print(inst.check_test_status())
-#     time.sleep(5)
 timer.stop()
 
