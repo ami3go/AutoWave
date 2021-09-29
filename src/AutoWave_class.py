@@ -56,19 +56,22 @@ def range_check(val, min, max, val_name):
 #         check_sum += 0x20
 #     return check_sum
 
+def str2dec_array(txt):
+    cmd = []  # array for formatted command
+    for item in txt:
+        cmd.append(ord(item))
+    return cmd
+
 def str2check_sum(txt):
     '''
     Calculate a check sum for text string
-
     :param txt: input test string
     :type txt: str
     :return: if (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
     '''
     sum = 0  # variable for check summ
-    for item in txt:
-        # sum = sum + hex(item.encode('utf-8').hex())
-        # print(f"Symbol: {item}, value: {ord(item)}")
-        sum = sum + int(ord(item))
+    array = str2check_sum(txt)
+    sum = sum(array)
     check_sum = sum & 0x00FF
     # print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
     #  If the checksum is less or equal to 0x20, 0x20 is added again.
@@ -77,11 +80,7 @@ def str2check_sum(txt):
         check_sum += 0x20
     return check_sum
 
-def str2dec_array(txt):
-    cmd = []  # array for formatted command
-    for item in txt:
-        cmd.append(ord(item))
-    return cmd
+
 
 
 class com_interface:
