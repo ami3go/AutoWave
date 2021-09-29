@@ -211,9 +211,9 @@ class com_interface:
                     return_str = return_raw.decode("utf-8")
                     if err_check == 1:
                         if (return_str.find(":ERR") !=-1):
-                            raise Exception
+                            raise Exception("Error in replay")
                     return return_str
-                raise Exception
+                raise Exception("Error in start(0x02)/end(0x03) terminator")
 
             except Exception as e:
                 # print("Pquery:",cmd_str,"Ret:",return_raw," ",e," ", i, )
