@@ -146,7 +146,41 @@ class com_interface:
         self.inst.write_raw(bytes(cmd))
 
 
-    def pquery(self, cmd_str):
+    # def pquery(self, cmd_str):
+    #     '''
+    #     Delay and retry in cause of old device with slow processing time
+    #     In case of error a 10 attempts will be made before everything will get crashed.
+    #
+    #     :param cmd_str: VISA string command
+    #     :type cmd_str: str
+    #     :return: instument replay string
+    #     :rtype: str
+    #     '''
+    #     #
+    #     #
+    #     for i in range(10):
+    #         try:
+    #             # debug print to check how may tries
+    #             # print("trying",i)
+    #             self.psend(cmd_str)
+    #             delay()  # regular delay according to datasheet before next command
+    #             return_raw = self.inst.read_raw()
+    #             # print("read_raw:",return_raw )
+    #             # check return line
+    #             if return_raw[0] == 0x02 and return_raw[-2] == 0x03:
+    #                 # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
+    #                 # #  x02 - start symbol
+    #                 # #  x03 - stop symbol
+    #                 # #  x9b - check sum
+    #                 return_raw = return_raw[1:-2]
+    #                 return_str = return_raw.decode("utf-8")
+    #                 return return_str
+    #             raise Exception
+    #
+    #         except Exception as e:
+    #             print("Pquery:",cmd_str," ",e," ", i)
+    #             delay(5)
+    def pquery(self, cmd_str, err_check=0):
         '''
         Delay and retry in cause of old device with slow processing time
         In case of error a 10 attempts will be made before everything will get crashed.
@@ -164,6 +198,7 @@ class com_interface:
                 # print("trying",i)
                 self.psend(cmd_str)
                 delay()  # regular delay according to datasheet before next command
+                return_raw = None
                 return_raw = self.inst.read_raw()
                 # print("read_raw:",return_raw )
                 # check return line
@@ -174,13 +209,16 @@ class com_interface:
                     # #  x9b - check sum
                     return_raw = return_raw[1:-2]
                     return_str = return_raw.decode("utf-8")
+                    if err_check == 1:
+                        if (return_str.find(":ERR") !=-1):
+                            raise Exception
                     return return_str
                 raise Exception
 
             except Exception as e:
-                print(e, i)
+                # print("Pquery:",cmd_str,"Ret:",return_raw," ",e," ", i, )
+                print(f"Pquery[{i}]: {cmd_str}, Reply: {return_raw}, Error: {e}")
                 delay(5)
-
     def query(self, cmd_str):
         # delay and retry in cause of old device with slow processing time
         # cycle will make 10 attempts before everything will get crashed.
@@ -193,7 +231,7 @@ class com_interface:
                 return return_val
 
             except Exception as e:
-                print(e, i)
+                print("Pquery:",cmd_str," ",e," ", i)
                 delay(5)
 
 
@@ -204,22 +242,22 @@ class com_interface:
     def run_test_file(self, file_name, echo="on"):
         # to do:  no/off echo mode
 
-        txt = self.pquery(self.cmd.file.get_dir_download.str())
+        txt = self.pquery(self.cmd.file.get_dir_download.str(), 1)
         self.download_dir = txt.replace("DIR DOWD:","")
         self.download_dir = self.download_dir + "/"
-        print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name)))
+        # print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name), 1))
+        # delay(5)
+        print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name), 1))
         delay(5)
-        print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
-        delay(5)
-        print(self.pquery(self.cmd.mode.gen.str()))
+        print(self.pquery(self.cmd.mode.gen.str(), 1))
         delay(1)
-        print(self.pquery(self.cmd.file.select.path(file_name)))
+        print(self.pquery(self.cmd.file.select.path(file_name), 1))
         delay(1)
-        print(self.pquery(self.cmd.trigGen.manual_start.str()))
+        print(self.pquery(self.cmd.trigGen.manual_start.str(), 1))
         delay(1)
-        print(self.pquery(self.cmd.start_test.str()))
+        print(self.pquery(self.cmd.start_test.str(), 1))
         delay(1)
-        print(self.pquery(self.cmd.start_test.str()))
+        print(self.pquery(self.cmd.start_test.str(), 1))
         delay(1)
 
     # def run_test_file(self, file_name, echo="on"):
