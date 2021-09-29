@@ -1,4 +1,4 @@
-`import AutoWave_class
+import AutoWave_class
 import time
 import Timer_class
 

@@ -92,8 +92,8 @@ class com_interface:
         print("ECHO: ",self.inst.query("*ECHO:ON"))
         # print("Protocol OFF: ", self.inst.query("*PRCL:OFF"))
         print("Protocol OFF: ", self.inst.query("*PRCL:ON"))
-        print("Set offset 0V: ", self.inst.pquery("VOFS:OUT1-4 0"))
-        print("Set Voltage 13.5V: ", self.inst.pquery("VSET:OUT1-4 13.5"))
+        print("Set offset 0V: ", self.pquery("VOFS:OUT1 0"))
+        print("Set Voltage 13.5V: ", self.pquery("VSET:OUT1 13.5"))
 
 
 
