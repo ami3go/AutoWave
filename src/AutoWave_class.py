@@ -92,8 +92,11 @@ class com_interface:
         print("ECHO: ",self.inst.query("*ECHO:ON"))
         # print("Protocol OFF: ", self.inst.query("*PRCL:OFF"))
         print("Protocol OFF: ", self.inst.query("*PRCL:ON"))
-        print("Set offset 0V: ", self.pquery("VOFS:OUT1 0"))
-        print("Set Voltage 13.5V: ", self.pquery("VSET:OUT1 13.5"))
+        delay()
+        # print("Set offset 0V: ", self.pquery("VOFS:OUT1 0"))
+        # delay()
+        # print("Set Voltage 13.5V: ", self.pquery("VSET:OUT1 13.5"))
+        # delay()
 
 
 
@@ -144,8 +147,8 @@ class com_interface:
         cmd.insert(0, 2)  # insertion of STX=0x02 to a first place
         cmd.append(3)  # termination message with ETX=0x03
         cmd.append(str2check_sum(txt_cmd))  # adding check sum at the end
-        # print(f"protocol cmd: {cmd}")
-        # print(bytes(cmd))
+        print(f"protocol cmd: {cmd}")
+        print(bytes(cmd))
         self.inst.write_raw(bytes(cmd))
 
 
@@ -245,14 +248,15 @@ class com_interface:
     def run_test_file(self, file_name, echo="on"):
         # to do:  no/off echo mode
 
-        txt = self.pquery(self.cmd.file.get_dir_download.str(), 1)
-        self.download_dir = txt.replace("DIR DOWD:","")
-        self.download_dir = self.download_dir + "/"
-        # print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name), 1))
+
+        # txt = self.pquery(self.cmd.file.get_dir_download.str(), 1)
+        # self.download_dir = txt.replace("DIR DOWD:","")
+        # self.download_dir = self.download_dir + "/"
+        # print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name)))
         # delay(5)
-        print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name), 1))
+        # print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
         delay(5)
-        print(self.pquery(self.cmd.mode.gen.str(), 1))
+        print(self.pquery(self.cmd.mode.gen.str()))
         delay(1)
         print(self.pquery(self.cmd.file.select.path(file_name), 1))
         delay(1)
