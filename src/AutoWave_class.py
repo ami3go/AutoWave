@@ -72,8 +72,47 @@ class com_interface:
         # print(f'Sending: {txt}')
         self.inst.write(txt)
         delay()
-    def psend(self, txt):
-        pass
+
+    def psend(self, txt_cmd):
+        print("Psend input:", txt_cmd)
+        sum = 0 # variable for check summ
+        cmd = [] # array for formatted command
+
+        for item in txt_cmd:
+            # sum = sum + hex(item.encode('utf-8').hex())
+            #print(f"Symbol: {item}, value: {ord(item)}")
+            sum = sum + int(ord(item))
+            cmd.append(ord(item))
+        check_sum = sum & 0x00FF
+        print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
+        #  If the checksum is less or equal to 0x20, 0x20 is added again.
+        #  Thus ensures that the checksum is not interpreted as control character.
+        if check_sum <= 0x20:
+            check_sum += 0x20
+        # additional protocol requirements
+        # STX=0x02 + Command + ETX=0x03 + CheckSum
+        cmd.insert(0, 2)  # insertion of STX=0x02 to a first place
+        cmd.append(3)  # termination message with ETX=0x03
+        cmd.append(check_sum)  # adding check sum at the end
+        print(f"protocol cmd: {cmd}")
+        print(bytearray(cmd))
+        self.inst.write_raw(bytearray(cmd))
+
+    def pquery(self, cmd_str):
+        # delay and retry in cause of old device with slow processing time
+        # cycle will make 10 attempts before everything will get crashed.
+        for i in range(10):
+            try:
+                # debug print to check how may tries
+                # print("trying",i)
+                return_val = self.inst.query(cmd_str)
+                self.inst.query_
+                delay()  # regular delay according to datasheet before next command
+                return return_val
+
+            except:
+                print("VI_ERROR_TMO, retry:", i)
+                delay(5)
 
     def query(self, cmd_str):
         # delay and retry in cause of old device with slow processing time
