@@ -24,6 +24,36 @@ AG_status = ["stopped",
 def delay_cmd(time_s=2):
     time.sleep(time_s)
 
+def psend(txt_cmd):
+    print("Psend input:", txt_cmd)
+    sum = 0 # variable for check summ
+    cmd = [] # array for formatted command
+
+    for item in txt_cmd:
+        # sum = sum + hex(item.encode('utf-8').hex())
+        #print(f"Symbol: {item}, value: {ord(item)}")
+        sum = sum + int(ord(item))
+        cmd.append(ord(item))
+    check_sum = sum & 0x00FF
+    print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
+    #  If the checksum is less or equal to 0x20, 0x20 is added again.
+    #  Thus ensures that the checksum is not interpreted as control character.
+    if check_sum <= 0x20:
+        check_sum += 0x20
+    # additional protocol requirements
+    # STX=0x02 + Command + ETX=0x03 + CheckSum
+    cmd.insert(0, 2)  # insertion of STX=0x02 to a first place
+    cmd.append(3)  # termination message with ETX=0x03
+    cmd.append(check_sum)  # adding check sum at the end
+    print(f"protocol cmd: {cmd}")
+    print(bytearray(cmd))
+    return (bytes(cmd))
+    # return ((cmd))
+
+
+
+
+
 rm = pyvisa.ResourceManager()
 rm_list = rm.list_resources()
 i = 0
@@ -46,7 +76,8 @@ print("write_termination:", inst.write_termination)
 # inst.read_termination = '\n'
 # inst.write_termination = '\n'
 #inst.baud_rate = 9600
-inst.write("*PRCL:OFF")
+
+inst.write("*PRCL:ON")
 print("Session:", inst.session)
 delay_cmd()
 print(inst.query("*IDN?"))
@@ -55,12 +86,14 @@ print(inst.query("*PRCL?"))
 delay_cmd()
 print(inst.query("*ECHO:ON"))
 delay_cmd()
-print(inst.query("STAT? SYST"))
+# print(inst.query_binary_values(b'\x02STAT? SYST\x03\xee'))
+print(inst.write_raw(psend("STAT? SYST")))
+print(inst.read_raw())
 delay_cmd()
 # inst.write("DISP Python control")
 # delay_cmd()
 print("*** TESTING INIT ***")
-file_list = inst.query("DIR? /home/guest/DowFiles")
+file_list = inst.write_raw(psend("DIR? /home/guest/DowFiles"))
 print(file_list)
 file_list_array = file_list.split(",")
 number = 0
