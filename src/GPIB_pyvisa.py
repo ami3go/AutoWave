@@ -24,7 +24,7 @@ AG_status = ["stopped",
 def delay_cmd(time_s=2):
     time.sleep(time_s)
 
-def psend(self, txt_cmd):
+def psend(txt_cmd):
     print("Psend input:", txt_cmd)
     sum = 0 # variable for check summ
     cmd = [] # array for formatted command
@@ -47,7 +47,8 @@ def psend(self, txt_cmd):
     cmd.append(check_sum)  # adding check sum at the end
     print(f"protocol cmd: {cmd}")
     print(bytearray(cmd))
-    return (bytearray(cmd))
+    return (bytes(cmd))
+    # return ((cmd))
 
 
 
@@ -85,12 +86,14 @@ print(inst.query("*PRCL?"))
 delay_cmd()
 print(inst.query("*ECHO:ON"))
 delay_cmd()
-print(inst.query("STAT? SYST"))
+# print(inst.query_binary_values(b'\x02STAT? SYST\x03\xee'))
+print(inst.write_raw(psend("STAT? SYST")))
+print(inst.read_raw())
 delay_cmd()
 # inst.write("DISP Python control")
 # delay_cmd()
 print("*** TESTING INIT ***")
-file_list = inst.query("DIR? /home/guest/DowFiles")
+file_list = inst.write_raw(psend("DIR? /home/guest/DowFiles"))
 print(file_list)
 file_list_array = file_list.split(",")
 number = 0

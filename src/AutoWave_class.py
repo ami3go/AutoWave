@@ -35,6 +35,32 @@ def range_check(val, min, max, val_name):
         val = min
     return val
 
+def str2check_sum(txt):
+    '''
+    Calculate a check sum for text string
+
+    :param txt: input test string
+    :type txt: str
+    :return: if (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
+    '''
+    sum = 0  # variable for check summ
+    for item in txt:
+        # sum = sum + hex(item.encode('utf-8').hex())
+        # print(f"Symbol: {item}, value: {ord(item)}")
+        sum = sum + int(ord(item))
+    check_sum = sum & 0x00FF
+    # print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
+    #  If the checksum is less or equal to 0x20, 0x20 is added again.
+    #  Thus ensures that the checksum is not interpreted as control character.
+    if check_sum <= 0x20:
+        check_sum += 0x20
+    return check_sum
+
+def str2dec_array(txt):
+    cmd = []  # array for formatted command
+    for item in txt:
+        cmd.append(ord(item))
+    return cmd
 
 
 class com_interface:
@@ -63,7 +89,8 @@ class com_interface:
         self.inst.write_termination = ""
         self.inst.timeout = 2000 # timeout in ms
         print("Connected to: ", self.inst.query("*IDN?"))
-        print("Protocol OFF: ", self.inst.query("*PRCL:OFF"))
+        # print("Protocol OFF: ", self.inst.query("*PRCL:OFF"))
+        print("Protocol OFF: ", self.inst.query("*PRCL:ON"))
         print(self.inst.query("*ECHO:ON"))
 
 
@@ -73,45 +100,85 @@ class com_interface:
         self.inst.write(txt)
         delay()
 
+    # def psend(self, txt_cmd):
+    #     '''
+    #     Sending protocol command: STX=0x02 + Command + ETX=0x03 + CheckSum
+    #     :param txt_cmd: VISA string command
+    #     :type txt_cmd: str
+    #     :return: None
+    #     '''
+    #     # print("Psend input:", txt_cmd)
+    #     sum = 0 # variable for check summ
+    #     cmd = [] # array for formatted command
+    #
+    #     for item in txt_cmd:
+    #         # sum = sum + hex(item.encode('utf-8').hex())
+    #         #print(f"Symbol: {item}, value: {ord(item)}")
+    #         sum = sum + int(ord(item))
+    #         cmd.append(ord(item))
+    #     check_sum = sum & 0x00FF
+    #     # print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
+    #     #  If the checksum is less or equal to 0x20, 0x20 is added again.
+    #     #  Thus ensures that the checksum is not interpreted as control character.
+    #     if check_sum <= 0x20:
+    #         check_sum += 0x20
+    #     # additional protocol requirements
+    #     # STX=0x02 + Command + ETX=0x03 + CheckSum
+    #     cmd.insert(0, 2)  # insertion of STX=0x02 to a first place
+    #     cmd.append(3)  # termination message with ETX=0x03
+    #     cmd.append(check_sum)  # adding check sum at the end
+    #     print(f"protocol cmd: {cmd}")
+    #     # print(bytes(cmd))
+    #     self.inst.write_raw(bytes(cmd))
     def psend(self, txt_cmd):
-        print("Psend input:", txt_cmd)
-        sum = 0 # variable for check summ
-        cmd = [] # array for formatted command
-
-        for item in txt_cmd:
-            # sum = sum + hex(item.encode('utf-8').hex())
-            #print(f"Symbol: {item}, value: {ord(item)}")
-            sum = sum + int(ord(item))
-            cmd.append(ord(item))
-        check_sum = sum & 0x00FF
-        print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
-        #  If the checksum is less or equal to 0x20, 0x20 is added again.
-        #  Thus ensures that the checksum is not interpreted as control character.
-        if check_sum <= 0x20:
-            check_sum += 0x20
-        # additional protocol requirements
-        # STX=0x02 + Command + ETX=0x03 + CheckSum
+        '''
+        Sending protocol command: STX=0x02 + Command + ETX=0x03 + CheckSum
+        :param txt_cmd: VISA string command
+        :type txt_cmd: str
+        :return: None
+        '''
+        cmd = str2dec_array(txt_cmd)
         cmd.insert(0, 2)  # insertion of STX=0x02 to a first place
         cmd.append(3)  # termination message with ETX=0x03
-        cmd.append(check_sum)  # adding check sum at the end
-        print(f"protocol cmd: {cmd}")
-        print(bytearray(cmd))
-        self.inst.write_raw(bytearray(cmd))
+        cmd.append(str2check_sum(txt_cmd))  # adding check sum at the end
+        # print(f"protocol cmd: {cmd}")
+        # print(bytes(cmd))
+        self.inst.write_raw(bytes(cmd))
+
 
     def pquery(self, cmd_str):
-        # delay and retry in cause of old device with slow processing time
-        # cycle will make 10 attempts before everything will get crashed.
+        '''
+        Delay and retry in cause of old device with slow processing time
+        In case of error a 10 attempts will be made before everything will get crashed.
+
+        :param cmd_str: VISA string command
+        :type cmd_str: str
+        :return: instument replay string
+        :rtype: str
+        '''
+        #
+        #
         for i in range(10):
             try:
                 # debug print to check how may tries
                 # print("trying",i)
-                return_val = self.inst.query(cmd_str)
-                self.inst.query_
+                self.psend(cmd_str)
                 delay()  # regular delay according to datasheet before next command
-                return return_val
+                return_raw = self.inst.read_raw()
+                # print("read_raw:",return_raw )
+                # check return line
+                if return_raw[0] == 0x02 and return_raw[-2] == 0x03:
+                    # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
+                    # #  x02 - start symbol
+                    # #  x03 - stop symbol
+                    # #  x9b - check sum
+                    return_raw = return_raw[1:-2]
+                    return_str = return_raw.decode("utf-8")
+                    return return_str
+                raise Exception
 
-            except:
-                print("VI_ERROR_TMO, retry:", i)
+            except Exception as e:
+                print(e, i)
                 delay(5)
 
     def query(self, cmd_str):
@@ -125,8 +192,8 @@ class com_interface:
                 delay() # regular delay according to datasheet before next command
                 return return_val
 
-            except:
-                print("VI_ERROR_TMO, retry:", i)
+            except Exception as e:
+                print(e, i)
                 delay(5)
 
 
@@ -137,22 +204,22 @@ class com_interface:
     def run_test_file(self, file_name, echo="on"):
         # to do:  no/off echo mode
 
-        txt = self.query(self.cmd.file.get_dir_download.str())
+        txt = self.pquery(self.cmd.file.get_dir_download.str())
         self.download_dir = txt.replace("DIR DOWD:","")
         self.download_dir = self.download_dir + "/"
-        print(self.query(self.cmd.file.TRLF.path(self.download_dir + file_name)))
+        print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name)))
         delay(5)
-        print(self.query(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
+        print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
         delay(5)
-        print(self.query(self.cmd.mode.gen.str()))
+        print(self.pquery(self.cmd.mode.gen.str()))
         delay(1)
-        print(self.query(self.cmd.file.select.path(file_name)))
+        print(self.pquery(self.cmd.file.select.path(file_name)))
         delay(1)
-        print(self.query(self.cmd.trigGen.manual_start.str()))
+        print(self.pquery(self.cmd.trigGen.manual_start.str()))
         delay(1)
-        print(self.query(self.cmd.start_test.str()))
+        print(self.pquery(self.cmd.start_test.str()))
         delay(1)
-        print(self.query(self.cmd.start_test.str()))
+        print(self.pquery(self.cmd.start_test.str()))
         delay(1)
 
     # def run_test_file(self, file_name, echo="on"):
@@ -193,7 +260,10 @@ class com_interface:
         # Ask for duration, channels, events, trigger and master channel of a test file
         # typical responce
         # CKLF Ford ES-XW7T-1A278-AC - CI210 -.dsg:31.000000, 1, 1, 3, 0, 0;'
-        txt = self.query(self.cmd.file.check_details.path(file_name))
+        txt = self.pquery(self.cmd.file.check_details.path(file_name))
+        delay(1)
+        txt = self.pquery(self.cmd.file.check_details.path(file_name))
+        print("file det:", txt)
         txt = txt.split(":") # get text and digits separated
         txt = txt[1] # select only digits array
         txt = txt.split(",") # separate digits
@@ -226,7 +296,7 @@ class com_interface:
                    ["IN 1:", "", ""],
                    ["DUT:", "", ""],
         ]
-        status_rep = self.query(self.cmd.status.read_test_status.str())
+        status_rep = self.pquery(self.cmd.status.read_test_status.str())
         # print(status_rep)
         st = status_rep.replace("STAT TEST:", "")
         st = st.split(",")
