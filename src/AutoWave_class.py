@@ -178,7 +178,7 @@ class com_interface:
                 raise Exception
 
             except Exception as e:
-                print(e, i)
+                print("Pquery:",cmd_str," ",e," ", i)
                 delay(5)
 
     def query(self, cmd_str):
@@ -193,7 +193,7 @@ class com_interface:
                 return return_val
 
             except Exception as e:
-                print(e, i)
+                print("Pquery:",cmd_str," ",e," ", i)
                 delay(5)
 
 
