@@ -89,9 +89,12 @@ class com_interface:
         self.inst.write_termination = ""
         self.inst.timeout = 2000 # timeout in ms
         print("Connected to: ", self.inst.query("*IDN?"))
+        print("ECHO: ",self.inst.query("*ECHO:ON"))
         # print("Protocol OFF: ", self.inst.query("*PRCL:OFF"))
         print("Protocol OFF: ", self.inst.query("*PRCL:ON"))
-        print(self.inst.query("*ECHO:ON"))
+        print("Set offset 0V: ", self.pquery("VOFS:OUT1 0"))
+        print("Set Voltage 13.5V: ", self.pquery("VSET:OUT1 13.5"))
+
 
 
     def send(self, txt):
@@ -351,6 +354,9 @@ class com_interface:
 
     def reboot(self):
         self.send(self.cmd.reboot.str())
+
+    def set_dc_voltage(self, volt):
+        self.psend(self.cmd.setVoltage.out2.val(volt))
 
 class req3:
     def __init__(self, prefix):

@@ -1,4 +1,4 @@
-`import AutoWave_class
+import AutoWave_class
 import time
 import Timer_class
 
@@ -31,6 +31,7 @@ inst = AutoWave_class.com_interface()
 
 for test in WaveFormA:
     inst.init()
+    inst
     test_time = inst.get_test_time(test)
     timer.start(round(test_time)+20)
     time.sleep(1)
