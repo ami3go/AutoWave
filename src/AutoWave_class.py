@@ -246,8 +246,8 @@ class com_interface:
         txt = self.pquery(self.cmd.file.get_dir_download.str(), 1)
         self.download_dir = txt.replace("DIR DOWD:","")
         self.download_dir = self.download_dir + "/"
-        print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name), True, True))
-        delay(5)
+        # print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name), True, True))
+        # delay(5)
         # print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
         # delay(5)
         # print(self.pquery(self.cmd.mode.gen.str()))
@@ -311,17 +311,20 @@ class com_interface:
         ]
         #replay "STAT TEST:13,13,13,13,13,13,0"
         status_rep = self.pquery(self.cmd.status.read_test_status.str())
-        print(status_rep)
-        st = status_rep.replace("STAT TEST:", "")
-        st = st.split(",")
-        # print("st:", st)
-        i = 0
-        for code in st:
-            return_val[i][1] = code
-            return_val[i][2] = status_code_array[int(code)]
-            i = i + 1
-        # return status_rep
-        return return_val
+        print("check_test_status :", status_rep)
+        if status_rep != None:
+            st = status_rep.replace("STAT TEST:", "")
+            st = st.split(",")
+            # print("st:", st)
+            i = 0
+            for code in st:
+                return_val[i][1] = code
+                return_val[i][2] = status_code_array[int(code)]
+                i = i + 1
+            # return status_rep
+            return return_val
+        else:
+            return "No replay"
 
     def disconnect(self):
         self.send(self.cmd.go_to_local.str())
