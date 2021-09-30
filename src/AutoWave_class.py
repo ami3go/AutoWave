@@ -72,7 +72,7 @@ def str2check_sum(txt):
     '''
     sum_str = 0  # variable for check summ
     array = str2dec_array(txt)
-    print(array)
+    # print(array)
     sum_str = sum(array)
     check_sum = sum_str & 0x00FF
     # print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
@@ -109,14 +109,14 @@ class com_interface:
         self.inst.write_termination = ""
         self.inst.timeout = 2000  # timeout in ms
         print("Connected to: ", self.inst.query("*IDN?"))
+        delay()
         print("ECHO: ", self.inst.query("*ECHO:ON"))
-        # print("Protocol OFF: ", self.inst.query("*PRCL:OFF"))
+        delay()
         print("Protocol OFF: ", self.inst.query("*PRCL:ON"))
         delay()
-        print("Set offset 0V: ", self.pquery("VOFS:OUT1 0"))
+        print("Set generator mode: ", self.pquery(self.cmd.mode.gen.str()))
         delay()
-        print("Set Voltage 13.5V: ", self.pquery("VSET:OUT1 13.5"))
-        delay()
+
 
     def send(self, txt):
         # will put sending command here
@@ -135,8 +135,8 @@ class com_interface:
         cmd.insert(0, 2)  # insertion of STX=0x02 to a first place
         cmd.append(3)  # termination message with ETX=0x03
         cmd.append(str2check_sum(txt_cmd))  # adding check sum at the end
-        print(f"protocol cmd: {cmd}")
-        print(bytes(cmd))
+        # print(f"protocol cmd: {cmd}")
+        # print(bytes(cmd))
         self.inst.write_raw(bytes(cmd))
 
     # def pquery(self, cmd_str):
@@ -184,8 +184,6 @@ class com_interface:
         :return: instument replay string
         :rtype: str
         '''
-        #
-        #
         for i in range(10):
             try:
                 # debug print to check how may tries
@@ -281,61 +279,32 @@ class com_interface:
     def run_test_file(self, file_name, echo="on"):
         # to do:  no/off echo mode
 
-        # txt = self.pquery(self.cmd.file.get_dir_download.str(), 1)
-        # self.download_dir = txt.replace("DIR DOWD:","")
-        # self.download_dir = self.download_dir + "/"
-        # print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name)))
-        # delay(5)
-        # print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
+        txt = self.pquery(self.cmd.file.get_dir_download.str(), 1)
+        self.download_dir = txt.replace("DIR DOWD:","")
+        self.download_dir = self.download_dir + "/"
+        print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name)))
         delay(5)
-        print(self.pquery(self.cmd.mode.gen.str()))
+        print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
+        # delay(5)
+        # print(self.pquery(self.cmd.mode.gen.str()))
         delay(1)
-        print(self.pquery(self.cmd.file.select.path(file_name), 1))
+        print(self.pquery(self.cmd.file.select.path(file_name), True))
         delay(1)
-        print(self.pquery(self.cmd.trigGen.manual_start.str(), 1))
+        print(self.pquery(self.cmd.trigGen.manual_start.str(), True))
         delay(1)
-        print(self.pquery(self.cmd.start_test.str(), 1))
+        print(self.pquery(self.cmd.start_test.str(), True))
         delay(1)
-        print(self.pquery(self.cmd.start_test.str(), 1))
+        print(self.pquery(self.cmd.start_test.str(), True))
         delay(1)
 
-    # def run_test_file(self, file_name, echo="on"):
-    #     # to do:  no/off echo mode
-    #     txt = self.query(self.cmd.file.get_dir_download.str())
-    #     self.download_dir = txt.replace("DIR DOWD:", "")
-    #
-    #     replay = self.cmd.file.file_upload.path(self.download_dir + file_name)
-    #     delay(5)
-    #     status = replay[-3:]
-    #     if status == "ERR":
-    #         self.cmd.file.file_transmit.path(self.download_dir + file_name)
-    #
-    #     cmd_list = []
-    #     delay_list = []
-    #
-    #
-    #     cmd_list.append(self.cmd.mode.gen.str())
-    #     delay_list.append(5)
-    #     cmd_list.append(self.cmd.file.select.path(file_name))
-    #     delay_list.append(5)
-    #     cmd_list.append(self.cmd.trigGen.manual_start.str())
-    #     delay_list.append(5)
-    #     cmd_list.append(self.cmd.start_test.str())
-    #     delay_list.append(1)
-    #     cmd_list.append(self.cmd.start_test.str())
-    #     delay_list.append(1)
-    #     i=0
-    #     for item in cmd_list:
-    #         txt = self.query(item)
-    #         delay(delay_list[i])
-    #         i = i+1
-    #         if echo == "on":
-    #             print(txt)
+
 
     def get_test_time(self, file_name, echo="on"):
         # Ask for duration, channels, events, trigger and master channel of a test file
-        # typical responce
+        # typical response
         # CKLF Ford ES-XW7T-1A278-AC - CI210 -.dsg:31.000000, 1, 1, 3, 0, 0;'
+        # Protocol is not working for this command
+        # check the start and end termination leads to en error
         txt = self.pquery(self.cmd.file.check_details.path(file_name), False, False)
         delay(1)
         txt = self.pquery(self.cmd.file.check_details.path(file_name), False, False)
@@ -364,27 +333,29 @@ class com_interface:
                              "iterate",
                              "undefined",
                              "write to file",
+                             "not defined",
                              "file processing", ]
-        replay = [
-            ["OUT1:", "", ""],
-            ["OUT2:", "", ""],
-            ["OUT3:", "", ""],
-            ["OUT4:", "", ""],
-            ["IN 1:", "", ""],
-            ["IN 1:", "", ""],
-            ["DUT:", "", ""],
+        return_val = [  ["OUT1:", "", ""],
+                        ["OUT2:", "", ""],
+                        ["OUT3:", "", ""],
+                        ["OUT4:", "", ""],
+                        ["IN 1:", "", ""],
+                        ["IN 1:", "", ""],
+                        [" DUT:", "", ""],
         ]
+        #replay "STAT TEST:13,13,13,13,13,13,0"
         status_rep = self.pquery(self.cmd.status.read_test_status.str())
-        # print(status_rep)
+        print(status_rep)
         st = status_rep.replace("STAT TEST:", "")
         st = st.split(",")
         # print("st:", st)
         i = 0
         for code in st:
-            replay[i][2] = code
-            replay[i][1] = status_code_array[int(code)]
+            return_val[i][1] = code
+            return_val[i][2] = status_code_array[int(code)]
             i = i + 1
-        return replay
+        # return status_rep
+        return return_val
 
     def disconnect(self):
         self.send(self.cmd.go_to_local.str())
@@ -392,8 +363,31 @@ class com_interface:
     def reboot(self):
         self.send(self.cmd.reboot.str())
 
-    def set_dc_voltage(self, volt):
-        self.psend(self.cmd.setVoltage.out2.val(volt))
+    def set_dc_voltage(self, volt=13.5, ch=1):
+        ch = range_check(ch, 1, 4, "select channel")
+        if ch == 1:
+            self.psend(self.cmd.setVoltage.out1.val(volt))
+        elif ch == 2:
+            self.psend(self.cmd.setVoltage.out2.val(volt))
+        elif ch == 3:
+            self.psend(self.cmd.setVoltage.out3.val(volt))
+        elif ch == 4:
+            self.psend(self.cmd.setVoltage.out4.val(volt))
+        else:
+            raise Exception("Something went wrong. Func: set_dc_voltage(self, volt, ch=1) ")
+
+    def set_dc_offset(self, volt=0, ch=1):
+        ch = range_check(ch, 1, 4, "select channel")
+        if ch == 1:
+            self.psend(self.cmd.setOffset.out1.val(volt))
+        elif ch == 2:
+            self.psend(self.cmd.setOffset.out2.val(volt))
+        elif ch == 3:
+            self.psend(self.cmd.setOffset.out3.val(volt))
+        elif ch == 4:
+            self.psend(self.cmd.setOffset.out4.val(volt))
+        else:
+            raise Exception("Something went wrong. Func: sset_dc_offset(self, volt, ch=1) ")
 
 
 class req3:
