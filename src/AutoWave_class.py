@@ -1,29 +1,28 @@
-
 import time
-import pyvisa # PyVisa info @ http://PyVisa.readthedocs.io/en/stable/
+import pyvisa  # PyVisa info @ http://PyVisa.readthedocs.io/en/stable/
 import datetime
 import codecs
 
 
-#It is recommended to use a minimum delay of 250ms between two commands
+# It is recommended to use a minimum delay of 250ms between two commands
 def delay(time_in_sec=0.25):
     time.sleep(time_in_sec)
 
+
 ## Number of Points to request
 USER_REQUESTED_POINTS = 1000
-    ## None of these scopes offer more than 8,000,000 points
-    ## Setting this to 8000000 or more will ensure that the maximum number of available points is retrieved, though often less will come back.
-    ## Average and High Resolution acquisition types have shallow memory depth, and thus acquiring waveforms in Normal acq. type and post processing for High Res. or repeated acqs. for Average is suggested if more points are desired.
-    ## Asking for zero (0) points, a negative number of points, fewer than 100 points, or a non-integer number of points (100.1 -> error, but 100. or 100.0 is ok) will result in an error, specifically -222,"Data out of range"
+## None of these scopes offer more than 8,000,000 points
+## Setting this to 8000000 or more will ensure that the maximum number of available points is retrieved, though often less will come back.
+## Average and High Resolution acquisition types have shallow memory depth, and thus acquiring waveforms in Normal acq. type and post processing for High Res. or repeated acqs. for Average is suggested if more points are desired.
+## Asking for zero (0) points, a negative number of points, fewer than 100 points, or a non-integer number of points (100.1 -> error, but 100. or 100.0 is ok) will result in an error, specifically -222,"Data out of range"
 
 ## Initialization constants
-INSTRUMENT_VISA_ADDRESS = 'USB0::0x0957::0x0A07::MY48001027::0::INSTR' # Get this from Keysight IO Libraries Connection Expert
-    ## Note: sockets are not supported in this revision of the script (though it is possible), and PyVisa 1.8 does not support HiSlip, nor do these scopes.
-    ## Note: USB transfers are generally fastest.
-    ## Video: Connecting to Instruments Over LAN, USB, and GPIB in Keysight Connection Expert: https://youtu.be/sZz8bNHX5u4
+INSTRUMENT_VISA_ADDRESS = 'USB0::0x0957::0x0A07::MY48001027::0::INSTR'  # Get this from Keysight IO Libraries Connection Expert
+## Note: sockets are not supported in this revision of the script (though it is possible), and PyVisa 1.8 does not support HiSlip, nor do these scopes.
+## Note: USB transfers are generally fastest.
+## Video: Connecting to Instruments Over LAN, USB, and GPIB in Keysight Connection Expert: https://youtu.be/sZz8bNHX5u4
 
-GLOBAL_TOUT =  10 # IO time out in milliseconds
-
+GLOBAL_TOUT = 10  # IO time out in milliseconds
 
 
 def range_check(val, min, max, val_name):
@@ -35,32 +34,48 @@ def range_check(val, min, max, val_name):
         val = min
     return val
 
-def str2check_sum(txt):
-    '''
-    Calculate a check sum for text string
 
-    :param txt: input test string
-    :type txt: str
-    :return: if (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
-    '''
-    sum = 0  # variable for check summ
-    for item in txt:
-        # sum = sum + hex(item.encode('utf-8').hex())
-        # print(f"Symbol: {item}, value: {ord(item)}")
-        sum = sum + int(ord(item))
-    check_sum = sum & 0x00FF
-    # print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
-    #  If the checksum is less or equal to 0x20, 0x20 is added again.
-    #  Thus ensures that the checksum is not interpreted as control character.
-    if check_sum <= 0x20:
-        check_sum += 0x20
-    return check_sum
+# def str2check_sum(txt):
+#     '''
+#     Calculate a check sum for text string
+#
+#     :param txt: input test string
+#     :type txt: str
+#     :return: if (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
+#     '''
+#     sum = 0  # variable for check summ
+#     for item in txt:
+#         # sum = sum + hex(item.encode('utf-8').hex())
+#         # print(f"Symbol: {item}, value: {ord(item)}")
+#         sum = sum + int(ord(item))
+#     check_sum = sum & 0x00FF
+#     # print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
+#     #  If the checksum is less or equal to 0x20, 0x20 is added again.
+#     #  Thus ensures that the checksum is not interpreted as control character.
+#     if check_sum <= 0x20:
+#         check_sum += 0x20
+#     return check_sum
 
 def str2dec_array(txt):
     cmd = []  # array for formatted command
     for item in txt:
         cmd.append(ord(item))
     return cmd
+def array2str2check_sum(array_var):
+    check_sum = sum(array_var) & 0x00FF
+    if check_sum <= 0x20:
+        check_sum += 0x20
+    return check_sum
+
+def str2check_sum(txt):
+    '''
+    Calculate a check sum for text string
+    :param txt: input test string
+    :type txt: str
+    :return: if (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
+    '''
+    array = str2dec_array(txt)
+    return array2str2check_sum(array)
 
 
 class com_interface:
@@ -76,7 +91,7 @@ class com_interface:
         self.cmd = storage()
         self.start_time = None
 
-        #self.app = self.rm.open_resource(INSTRUMENT_VISA_ADDRESS)
+        # self.app = self.rm.open_resource(INSTRUMENT_VISA_ADDRESS)
 
     def init(self):
         rm_list = self.rm.list_resources()
@@ -87,14 +102,15 @@ class com_interface:
         self.inst = self.rm.open_resource(self.res_name)
         self.inst.set_visa_attribute(pyvisa.constants.VI_ATTR_SEND_END_EN, 1)
         self.inst.write_termination = ""
-        self.inst.timeout = 2000 # timeout in ms
+        self.inst.timeout = 2000  # timeout in ms
         print("Connected to: ", self.inst.query("*IDN?"))
-        print("ECHO: ",self.inst.query("*ECHO:ON"))
-        # print("Protocol OFF: ", self.inst.query("*PRCL:OFF"))
+        delay()
+        print("ECHO: ", self.inst.query("*ECHO:ON"))
+        delay()
         print("Protocol OFF: ", self.inst.query("*PRCL:ON"))
-        print("Set offset 0V: ", self.pquery("VOFS:OUT1 0"))
-        print("Set Voltage 13.5V: ", self.pquery("VSET:OUT1 13.5"))
-
+        delay()
+        print("Set generator mode: ", self.pquery(self.cmd.mode.gen.str()))
+        delay()
 
 
     def send(self, txt):
@@ -103,36 +119,6 @@ class com_interface:
         self.inst.write(txt)
         delay()
 
-    # def psend(self, txt_cmd):
-    #     '''
-    #     Sending protocol command: STX=0x02 + Command + ETX=0x03 + CheckSum
-    #     :param txt_cmd: VISA string command
-    #     :type txt_cmd: str
-    #     :return: None
-    #     '''
-    #     # print("Psend input:", txt_cmd)
-    #     sum = 0 # variable for check summ
-    #     cmd = [] # array for formatted command
-    #
-    #     for item in txt_cmd:
-    #         # sum = sum + hex(item.encode('utf-8').hex())
-    #         #print(f"Symbol: {item}, value: {ord(item)}")
-    #         sum = sum + int(ord(item))
-    #         cmd.append(ord(item))
-    #     check_sum = sum & 0x00FF
-    #     # print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
-    #     #  If the checksum is less or equal to 0x20, 0x20 is added again.
-    #     #  Thus ensures that the checksum is not interpreted as control character.
-    #     if check_sum <= 0x20:
-    #         check_sum += 0x20
-    #     # additional protocol requirements
-    #     # STX=0x02 + Command + ETX=0x03 + CheckSum
-    #     cmd.insert(0, 2)  # insertion of STX=0x02 to a first place
-    #     cmd.append(3)  # termination message with ETX=0x03
-    #     cmd.append(check_sum)  # adding check sum at the end
-    #     print(f"protocol cmd: {cmd}")
-    #     # print(bytes(cmd))
-    #     self.inst.write_raw(bytes(cmd))
     def psend(self, txt_cmd):
         '''
         Sending protocol command: STX=0x02 + Command + ETX=0x03 + CheckSum
@@ -148,8 +134,54 @@ class com_interface:
         # print(bytes(cmd))
         self.inst.write_raw(bytes(cmd))
 
+    def pquery(self, cmd_str, err_check=False, p_check=True):
+        '''
+        Delay and retry in cause of old device with slow processing time
+        In case of error a 10 attempts will be made before everything will get crashed.
 
-    # def pquery(self, cmd_str):
+        :param cmd_str: VISA string command
+        :type cmd_str: str
+        :return: instument replay string
+        :rtype: str
+        '''
+        for i in range(10):
+            try:
+                # debug print to check how may tries
+                # print("trying",i)
+                self.psend(cmd_str)
+                delay()  # regular delay according to datasheet before next command
+                return_raw = None
+                return_raw = self.inst.read_raw()
+                # print("read_raw:",return_raw )
+                # check return line
+                if p_check is True:
+                    # TBD: require to add check sum check
+                    check_sum = array2str2check_sum(return_raw[1:-2])
+                    if (return_raw[0] == 0x02) and (return_raw[-2] == 0x03) and (check_sum == return_raw[-1]):
+                        # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
+                        # #  x02 - start symbol
+                        # #  x03 - stop symbol
+                        # #  x9b - check sum
+                        # print("p_check:", return_raw)
+                        return_raw = return_raw[1:-2]
+                        return_str = return_raw.decode("utf-8")
+                        if err_check is True:
+                            if (return_str.find(":ERR") != -1):
+                                raise Exception("Error in replay")
+                        return return_str
+
+                    else:
+                        raise Exception("Error in start(0x02)/end(0x03) terminator")
+
+
+                return return_raw.decode("utf-8")
+
+            except Exception as e:
+                # print("Pquery:",cmd_str,"Ret:",return_raw," ",e," ", i, )
+                print(f"Pquery[{i}]: {cmd_str}, Reply: {return_raw}, Error: {e}")
+                delay(5)
+
+    # def pquery2(self, cmd_str, status_check=0, protocol_check=0):
     #     '''
     #     Delay and retry in cause of old device with slow processing time
     #     In case of error a 10 attempts will be made before everything will get crashed.
@@ -167,6 +199,7 @@ class com_interface:
     #             # print("trying",i)
     #             self.psend(cmd_str)
     #             delay()  # regular delay according to datasheet before next command
+    #             return_raw = None
     #             return_raw = self.inst.read_raw()
     #             # print("read_raw:",return_raw )
     #             # check return line
@@ -177,66 +210,31 @@ class com_interface:
     #                 # #  x9b - check sum
     #                 return_raw = return_raw[1:-2]
     #                 return_str = return_raw.decode("utf-8")
+    #                 if err_check == 1:
+    #                     if (return_str.find(":ERR") != -1):
+    #                         raise Exception("Error in replay")
     #                 return return_str
-    #             raise Exception
+    #             raise Exception("Error in start(0x02)/end(0x03) terminator")
     #
     #         except Exception as e:
-    #             print("Pquery:",cmd_str," ",e," ", i)
+    #             # print("Pquery:",cmd_str,"Ret:",return_raw," ",e," ", i, )
+    #             print(f"Pquery[{i}]: {cmd_str}, Reply: {return_raw}, Error: {e}")
     #             delay(5)
-    def pquery(self, cmd_str, err_check=0):
-        '''
-        Delay and retry in cause of old device with slow processing time
-        In case of error a 10 attempts will be made before everything will get crashed.
 
-        :param cmd_str: VISA string command
-        :type cmd_str: str
-        :return: instument replay string
-        :rtype: str
-        '''
-        #
-        #
-        for i in range(10):
-            try:
-                # debug print to check how may tries
-                # print("trying",i)
-                self.psend(cmd_str)
-                delay()  # regular delay according to datasheet before next command
-                return_raw = None
-                return_raw = self.inst.read_raw()
-                # print("read_raw:",return_raw )
-                # check return line
-                if return_raw[0] == 0x02 and return_raw[-2] == 0x03:
-                    # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
-                    # #  x02 - start symbol
-                    # #  x03 - stop symbol
-                    # #  x9b - check sum
-                    return_raw = return_raw[1:-2]
-                    return_str = return_raw.decode("utf-8")
-                    if err_check == 1:
-                        if (return_str.find(":ERR") !=-1):
-                            raise Exception("Error in replay")
-                    return return_str
-                raise Exception("Error in start(0x02)/end(0x03) terminator")
-
-            except Exception as e:
-                # print("Pquery:",cmd_str,"Ret:",return_raw," ",e," ", i, )
-                print(f"Pquery[{i}]: {cmd_str}, Reply: {return_raw}, Error: {e}")
-                delay(5)
     def query(self, cmd_str):
         # delay and retry in cause of old device with slow processing time
         # cycle will make 10 attempts before everything will get crashed.
         for i in range(10):
             try:
                 # debug print to check how may tries
-                #print("trying",i)
+                # print("trying",i)
                 return_val = self.inst.query(cmd_str)
-                delay() # regular delay according to datasheet before next command
+                delay()  # regular delay according to datasheet before next command
                 return return_val
 
             except Exception as e:
-                print("Pquery:",cmd_str," ",e," ", i)
+                print("Pquery:", cmd_str, " ", e, " ", i)
                 delay(5)
-
 
     def close(self):
         self.ser.close()
@@ -248,69 +246,43 @@ class com_interface:
         txt = self.pquery(self.cmd.file.get_dir_download.str(), 1)
         self.download_dir = txt.replace("DIR DOWD:","")
         self.download_dir = self.download_dir + "/"
-        # print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name), 1))
+        # print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name), True, True))
         # delay(5)
-        print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name), 1))
-        delay(5)
-        print(self.pquery(self.cmd.mode.gen.str(), 1))
+        # print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
+        # delay(5)
+        # print(self.pquery(self.cmd.mode.gen.str()))
+        # delay(1)
+        print(self.pquery(self.cmd.file.select.path(file_name), True))
         delay(1)
-        print(self.pquery(self.cmd.file.select.path(file_name), 1))
+        print(self.pquery(self.cmd.trigGen.manual_start.str(), True))
         delay(1)
-        print(self.pquery(self.cmd.trigGen.manual_start.str(), 1))
+        print(self.pquery(self.cmd.start_test.str(), True))
         delay(1)
-        print(self.pquery(self.cmd.start_test.str(), 1))
-        delay(1)
-        print(self.pquery(self.cmd.start_test.str(), 1))
+        print(self.pquery(self.cmd.start_test.str(), True))
         delay(1)
 
-    # def run_test_file(self, file_name, echo="on"):
-    #     # to do:  no/off echo mode
-    #     txt = self.query(self.cmd.file.get_dir_download.str())
-    #     self.download_dir = txt.replace("DIR DOWD:", "")
-    #
-    #     replay = self.cmd.file.file_upload.path(self.download_dir + file_name)
-    #     delay(5)
-    #     status = replay[-3:]
-    #     if status == "ERR":
-    #         self.cmd.file.file_transmit.path(self.download_dir + file_name)
-    #
-    #     cmd_list = []
-    #     delay_list = []
-    #
-    #
-    #     cmd_list.append(self.cmd.mode.gen.str())
-    #     delay_list.append(5)
-    #     cmd_list.append(self.cmd.file.select.path(file_name))
-    #     delay_list.append(5)
-    #     cmd_list.append(self.cmd.trigGen.manual_start.str())
-    #     delay_list.append(5)
-    #     cmd_list.append(self.cmd.start_test.str())
-    #     delay_list.append(1)
-    #     cmd_list.append(self.cmd.start_test.str())
-    #     delay_list.append(1)
-    #     i=0
-    #     for item in cmd_list:
-    #         txt = self.query(item)
-    #         delay(delay_list[i])
-    #         i = i+1
-    #         if echo == "on":
-    #             print(txt)
 
 
-    def get_test_time(self, file_name, echo="on" ):
+    def get_test_time(self, file_name, echo="on"):
         # Ask for duration, channels, events, trigger and master channel of a test file
-        # typical responce
+        # typical response
         # CKLF Ford ES-XW7T-1A278-AC - CI210 -.dsg:31.000000, 1, 1, 3, 0, 0;'
-        txt = self.pquery(self.cmd.file.check_details.path(file_name))
-        delay(1)
-        txt = self.pquery(self.cmd.file.check_details.path(file_name))
-        print("file det:", txt)
-        txt = txt.split(":") # get text and digits separated
-        txt = txt[1] # select only digits array
-        txt = txt.split(",") # separate digits
-        time_in_sec = float(txt[0]) # selec first digit
-        if echo == "on":
-            print(f"Test Duration: {datetime.timedelta(seconds=round(time_in_sec))} , File:{file_name}, Channel:{txt[1]}, Events:{txt[2]}")
+        # Protocol is not working for this command
+        # check the start and end termination leads to en error
+        txt = self.pquery(self.cmd.file.check_details.path(file_name), False, True)
+        print("file:", txt)
+        if txt != None:
+            txt = txt.split(":")  # get text and digits separated
+            txt = txt[1]  # select only digits array
+            txt = txt.split(",")  # separate digits
+            time_in_sec = float(txt[0])  # selec first digit
+            if echo == "on":
+                print(f"Test Duration: {datetime.timedelta(seconds=round(time_in_sec))} , "
+                      f"File:{file_name}, Channel:{txt[1]}, "
+                      f"Events:{txt[2]}")
+        else:
+            # !! ONLY FOR DEBUG
+            time_in_sec = 360
         return time_in_sec
 
     def check_test_status(self):
@@ -327,27 +299,32 @@ class com_interface:
                              "iterate",
                              "undefined",
                              "write to file",
+                             "not defined",
                              "file processing", ]
-        replay = [
-                   ["OUT1:", "" , ""],
-                   ["OUT2:", "", ""],
-                   ["OUT3:", "", ""],
-                   ["OUT4:", "", ""],
-                   ["IN 1:", "", ""],
-                   ["IN 1:", "", ""],
-                   ["DUT:", "", ""],
+        return_val = [  ["OUT1:", "", ""],
+                        ["OUT2:", "", ""],
+                        ["OUT3:", "", ""],
+                        ["OUT4:", "", ""],
+                        ["IN 1:", "", ""],
+                        ["IN 1:", "", ""],
+                        [" DUT:", "", ""],
         ]
+        #replay "STAT TEST:13,13,13,13,13,13,0"
         status_rep = self.pquery(self.cmd.status.read_test_status.str())
-        # print(status_rep)
-        st = status_rep.replace("STAT TEST:", "")
-        st = st.split(",")
-        # print("st:", st)
-        i = 0
-        for code in st:
-            replay[i][2] = code
-            replay[i][1] = status_code_array[int(code)]
-            i=i+1
-        return replay
+        print("check_test_status :", status_rep)
+        if status_rep != None:
+            st = status_rep.replace("STAT TEST:", "")
+            st = st.split(",")
+            # print("st:", st)
+            i = 0
+            for code in st:
+                return_val[i][1] = code
+                return_val[i][2] = status_code_array[int(code)]
+                i = i + 1
+            # return status_rep
+            return return_val
+        else:
+            return "No replay"
 
     def disconnect(self):
         self.send(self.cmd.go_to_local.str())
@@ -355,8 +332,34 @@ class com_interface:
     def reboot(self):
         self.send(self.cmd.reboot.str())
 
-    def set_dc_voltage(self, volt):
-        self.psend(self.cmd.setVoltage.out2.val(volt))
+    def set_dc_voltage(self, volt=13.5, ch=1):
+        ch = range_check(ch, 1, 4, "select channel")
+        if ch == 1:
+            self.psend(self.cmd.setVoltage.out1.val(volt))
+        elif ch == 2:
+            self.psend(self.cmd.setVoltage.out2.val(volt))
+        elif ch == 3:
+            self.psend(self.cmd.setVoltage.out3.val(volt))
+        elif ch == 4:
+            self.psend(self.cmd.setVoltage.out4.val(volt))
+        else:
+            raise Exception("Something went wrong. Func: set_dc_voltage(self, volt, ch=1) ")
+
+    def set_dc_offset(self, volt=0, ch=1):
+        ch = range_check(ch, 1, 4, "select channel")
+        if ch == 1:
+            self.psend(self.cmd.setOffset.out1.val(volt))
+        elif ch == 2:
+            self.psend(self.cmd.setOffset.out2.val(volt))
+        elif ch == 3:
+            self.psend(self.cmd.setOffset.out3.val(volt))
+        elif ch == 4:
+            self.psend(self.cmd.setOffset.out4.val(volt))
+        else:
+            raise Exception("Something went wrong. Func: sset_dc_offset(self, volt, ch=1) ")
+
+    def got_to_local(self):
+        self.psend(self.cmd.go_to_local.str())
 
 class req3:
     def __init__(self, prefix):
@@ -365,7 +368,6 @@ class req3:
 
     def req(self):
         return self.cmd + "?"
-
 
 
 class str3:
@@ -388,6 +390,7 @@ class str_and_req:
     def req(self):
         return self.cmd + "?"
 
+
 class req_on_off(req3):
     def __init__(self, prefix):
         self.prefix = prefix
@@ -395,7 +398,6 @@ class req_on_off(req3):
         # self.req = req3(self.prefix)
         self.on = str3(self.prefix + "ON")
         self.off = str3(self.prefix + "OFF")
-
 
 
 class dig_param:
@@ -409,6 +411,7 @@ class dig_param:
         txt = f'{self.cmd} {count}'
         return txt
 
+
 class dig_param3:
     def __init__(self, prefix, min, max):
         self.prefix = prefix
@@ -421,6 +424,7 @@ class dig_param3:
         txt = f'{self.cmd} {count}'
         return txt
 
+
 class str_param3:
     def __init__(self, prefix):
         self.prefix = prefix
@@ -429,11 +433,6 @@ class str_param3:
     def path(self, str=""):
         txt = f'{self.cmd} {str}'
         return txt
-
-
-
-
-
 
 
 class storage:
@@ -460,7 +459,6 @@ class storage:
         self.trigGen = trig_gen("")
 
 
-
 class mode(req3):
     def __init__(self, prefix):
         self.prefix = prefix
@@ -469,6 +467,7 @@ class mode(req3):
         self.gen = str3(self.prefix + " GEN")
         self.rec = str3(self.prefix + " REC")
         self.gen_and_rec = str3(self.prefix + " GNRC")
+
 
 class trig_gen():
     def __init__(self, prefix):
@@ -484,7 +483,6 @@ class trig_gen():
         self.trigIn_iter = str3(self.prefix + " 7")
 
 
-
 class set_voltage():
     def __init__(self, prefix):
         self.prefix = prefix
@@ -494,6 +492,7 @@ class set_voltage():
         self.out2 = dig_param3(self.prefix + ":OUT2", 0, 60)
         self.out3 = dig_param3(self.prefix + ":OUT3", 0, 60)
         self.out4 = dig_param3(self.prefix + ":OUT4", 0, 60)
+
 
 class file():
     # Command   # Syntax # Description
@@ -524,6 +523,7 @@ class file():
         self.check_total_duration = str_param3("CKFD?")
         self.select = str_param3("SOUR SEGM")
 
+
 class status:
     def __init__(self):
         print("INIT Status")
@@ -533,13 +533,11 @@ class status:
         self.read_mac = str3(self.prefix + " MAC")
         self.read_out1_status = str3(self.prefix + " OUT1")
         self.read_out2_status = str3(self.prefix + " OUT2")
-        self.read_out3_status= str3(self.prefix + " OUT3")
-        self.read_out4_status= str3(self.prefix + " OUT4")
+        self.read_out3_status = str3(self.prefix + " OUT3")
+        self.read_out4_status = str3(self.prefix + " OUT4")
         self.read_in1_status = str3(self.prefix + " IN1")
         self.read_in2_status = str3(self.prefix + " IN2")
         self.read_test_status = str3(self.prefix + " TEST")
-
-
 
 
 if __name__ == '__main__':
@@ -564,7 +562,7 @@ if __name__ == '__main__':
     print(cmd.file.get_file_list.path("inst_folder"))
 
     cmd_list = []
-    #cmd_list.append(cmd.file.file_transmit.path("file_name"))
+    # cmd_list.append(cmd.file.file_transmit.path("file_name"))
     cmd_list.append(cmd.mode.gen.str())
     cmd_list.append(cmd.file.select.path("file_name"))
     cmd_list.append(cmd.trigGen.manual_start.str())
