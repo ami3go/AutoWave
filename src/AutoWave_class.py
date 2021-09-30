@@ -61,7 +61,11 @@ def str2dec_array(txt):
     for item in txt:
         cmd.append(ord(item))
     return cmd
-
+def array2str2check_sum(array_var):
+    check_sum = sum(array_var) & 0x00FF
+    if check_sum <= 0x20:
+        check_sum += 0x20
+    return check_sum
 
 def str2check_sum(txt):
     '''
@@ -70,16 +74,8 @@ def str2check_sum(txt):
     :type txt: str
     :return: if (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
     '''
-    sum_str = 0  # variable for check summ
     array = str2dec_array(txt)
-    # print(array)
-    check_sum = sum(array) & 0x00FF
-    # print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
-    #  If the checksum is less or equal to 0x20, 0x20 is added again.
-    #  Thus ensures that the checksum is not interpreted as control character.
-    if check_sum <= 0x20:
-        check_sum += 0x20
-    return check_sum
+    return array2str2check_sum(array)
 
 
 class com_interface:
