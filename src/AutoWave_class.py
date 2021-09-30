@@ -156,24 +156,26 @@ class com_interface:
                 # check return line
                 if p_check is True:
                     # TBD: require to add check sum check
-                    if return_raw[0] == 0x02 and return_raw[-2] == 0x03:
+                    check_sum = array2str2check_sum(return_raw[1:-2])
+                    if (return_raw[0] == 0x02) and (return_raw[-2] == 0x03) and (check_sum == return_raw[-1]):
                         # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
                         # #  x02 - start symbol
                         # #  x03 - stop symbol
                         # #  x9b - check sum
+                        # print("p_check:", return_raw)
                         return_raw = return_raw[1:-2]
-                        print("p_check:", return_raw)
-                        return return_raw.decode("utf-8")
+                        # return_str = return_raw.decode("utf-8")
                     else:
                         raise Exception("Error in start(0x02)/end(0x03) terminator")
                 if err_check is True:
+                    # return_raw = return_raw[1:-2]
+                    return_str = return_raw.decode("utf-8")
                     #need to be corrected
                     if (return_str.find(":ERR") != -1):
                         raise Exception("Error in replay")
-                    else:
-                        return return_str
 
                 return return_raw.decode("utf-8")
+
             except Exception as e:
                 # print("Pquery:",cmd_str,"Ret:",return_raw," ",e," ", i, )
                 print(f"Pquery[{i}]: {cmd_str}, Reply: {return_raw}, Error: {e}")
@@ -244,7 +246,7 @@ class com_interface:
         txt = self.pquery(self.cmd.file.get_dir_download.str(), 1)
         self.download_dir = txt.replace("DIR DOWD:","")
         self.download_dir = self.download_dir + "/"
-        print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name)), True, True)
+        print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name), True, True))
         delay(5)
         # print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
         # delay(5)
@@ -268,17 +270,19 @@ class com_interface:
         # Protocol is not working for this command
         # check the start and end termination leads to en error
         txt = self.pquery(self.cmd.file.check_details.path(file_name), False, True)
-        delay(1)
-        txt = self.pquery(self.cmd.file.check_details.path(file_name), False, True)
         print("file:", txt)
-        txt = txt.split(":")  # get text and digits separated
-        txt = txt[1]  # select only digits array
-        txt = txt.split(",")  # separate digits
-        time_in_sec = float(txt[0])  # selec first digit
-        if echo == "on":
-            print(f"Test Duration: {datetime.timedelta(seconds=round(time_in_sec))} , "
-                  f"File:{file_name}, Channel:{txt[1]}, "
-                  f"Events:{txt[2]}")
+        if txt != None:
+            txt = txt.split(":")  # get text and digits separated
+            txt = txt[1]  # select only digits array
+            txt = txt.split(",")  # separate digits
+            time_in_sec = float(txt[0])  # selec first digit
+            if echo == "on":
+                print(f"Test Duration: {datetime.timedelta(seconds=round(time_in_sec))} , "
+                      f"File:{file_name}, Channel:{txt[1]}, "
+                      f"Events:{txt[2]}")
+        else:
+            # !! ONLY FOR DEBUG
+            time_in_sec = 360
         return time_in_sec
 
     def check_test_status(self):
@@ -351,6 +355,8 @@ class com_interface:
         else:
             raise Exception("Something went wrong. Func: sset_dc_offset(self, volt, ch=1) ")
 
+    def got_to_local(self):
+        self.psend(self.cmd.go_to_local.str())
 
 class req3:
     def __init__(self, prefix):
