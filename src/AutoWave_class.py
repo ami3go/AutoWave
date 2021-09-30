@@ -73,8 +73,7 @@ def str2check_sum(txt):
     sum_str = 0  # variable for check summ
     array = str2dec_array(txt)
     # print(array)
-    sum_str = sum(array)
-    check_sum = sum_str & 0x00FF
+    check_sum = sum(array) & 0x00FF
     # print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
     #  If the checksum is less or equal to 0x20, 0x20 is added again.
     #  Thus ensures that the checksum is not interpreted as control character.
@@ -139,41 +138,6 @@ class com_interface:
         # print(bytes(cmd))
         self.inst.write_raw(bytes(cmd))
 
-    # def pquery(self, cmd_str):
-    #     '''
-    #     Delay and retry in cause of old device with slow processing time
-    #     In case of error a 10 attempts will be made before everything will get crashed.
-    #
-    #     :param cmd_str: VISA string command
-    #     :type cmd_str: str
-    #     :return: instument replay string
-    #     :rtype: str
-    #     '''
-    #     #
-    #     #
-    #     for i in range(10):
-    #         try:
-    #             # debug print to check how may tries
-    #             # print("trying",i)
-    #             self.psend(cmd_str)
-    #             delay()  # regular delay according to datasheet before next command
-    #             return_raw = self.inst.read_raw()
-    #             # print("read_raw:",return_raw )
-    #             # check return line
-    #             if return_raw[0] == 0x02 and return_raw[-2] == 0x03:
-    #                 # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
-    #                 # #  x02 - start symbol
-    #                 # #  x03 - stop symbol
-    #                 # #  x9b - check sum
-    #                 return_raw = return_raw[1:-2]
-    #                 return_str = return_raw.decode("utf-8")
-    #                 return return_str
-    #             raise Exception
-    #
-    #         except Exception as e:
-    #             print("Pquery:",cmd_str," ",e," ", i)
-    #             delay(5)
-
     def pquery(self, cmd_str, err_check=False, p_check=True):
         '''
         Delay and retry in cause of old device with slow processing time
@@ -202,10 +166,12 @@ class com_interface:
                         # #  x03 - stop symbol
                         # #  x9b - check sum
                         return_raw = return_raw[1:-2]
-                        return_str = return_raw.decode("utf-8")
+                        print("p_check:", return_raw)
+                        return return_raw.decode("utf-8")
                     else:
                         raise Exception("Error in start(0x02)/end(0x03) terminator")
                 if err_check is True:
+                    #need to be corrected
                     if (return_str.find(":ERR") != -1):
                         raise Exception("Error in replay")
                     else:
@@ -217,45 +183,45 @@ class com_interface:
                 print(f"Pquery[{i}]: {cmd_str}, Reply: {return_raw}, Error: {e}")
                 delay(5)
 
-    def pquery2(self, cmd_str, status_check=0, protocol_check=0):
-        '''
-        Delay and retry in cause of old device with slow processing time
-        In case of error a 10 attempts will be made before everything will get crashed.
-
-        :param cmd_str: VISA string command
-        :type cmd_str: str
-        :return: instument replay string
-        :rtype: str
-        '''
-        #
-        #
-        for i in range(10):
-            try:
-                # debug print to check how may tries
-                # print("trying",i)
-                self.psend(cmd_str)
-                delay()  # regular delay according to datasheet before next command
-                return_raw = None
-                return_raw = self.inst.read_raw()
-                # print("read_raw:",return_raw )
-                # check return line
-                if return_raw[0] == 0x02 and return_raw[-2] == 0x03:
-                    # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
-                    # #  x02 - start symbol
-                    # #  x03 - stop symbol
-                    # #  x9b - check sum
-                    return_raw = return_raw[1:-2]
-                    return_str = return_raw.decode("utf-8")
-                    if err_check == 1:
-                        if (return_str.find(":ERR") != -1):
-                            raise Exception("Error in replay")
-                    return return_str
-                raise Exception("Error in start(0x02)/end(0x03) terminator")
-
-            except Exception as e:
-                # print("Pquery:",cmd_str,"Ret:",return_raw," ",e," ", i, )
-                print(f"Pquery[{i}]: {cmd_str}, Reply: {return_raw}, Error: {e}")
-                delay(5)
+    # def pquery2(self, cmd_str, status_check=0, protocol_check=0):
+    #     '''
+    #     Delay and retry in cause of old device with slow processing time
+    #     In case of error a 10 attempts will be made before everything will get crashed.
+    #
+    #     :param cmd_str: VISA string command
+    #     :type cmd_str: str
+    #     :return: instument replay string
+    #     :rtype: str
+    #     '''
+    #     #
+    #     #
+    #     for i in range(10):
+    #         try:
+    #             # debug print to check how may tries
+    #             # print("trying",i)
+    #             self.psend(cmd_str)
+    #             delay()  # regular delay according to datasheet before next command
+    #             return_raw = None
+    #             return_raw = self.inst.read_raw()
+    #             # print("read_raw:",return_raw )
+    #             # check return line
+    #             if return_raw[0] == 0x02 and return_raw[-2] == 0x03:
+    #                 # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
+    #                 # #  x02 - start symbol
+    #                 # #  x03 - stop symbol
+    #                 # #  x9b - check sum
+    #                 return_raw = return_raw[1:-2]
+    #                 return_str = return_raw.decode("utf-8")
+    #                 if err_check == 1:
+    #                     if (return_str.find(":ERR") != -1):
+    #                         raise Exception("Error in replay")
+    #                 return return_str
+    #             raise Exception("Error in start(0x02)/end(0x03) terminator")
+    #
+    #         except Exception as e:
+    #             # print("Pquery:",cmd_str,"Ret:",return_raw," ",e," ", i, )
+    #             print(f"Pquery[{i}]: {cmd_str}, Reply: {return_raw}, Error: {e}")
+    #             delay(5)
 
     def query(self, cmd_str):
         # delay and retry in cause of old device with slow processing time
@@ -282,12 +248,12 @@ class com_interface:
         txt = self.pquery(self.cmd.file.get_dir_download.str(), 1)
         self.download_dir = txt.replace("DIR DOWD:","")
         self.download_dir = self.download_dir + "/"
-        print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name)))
+        print(self.pquery(self.cmd.file.TRLF.path(self.download_dir + file_name)), True, True)
         delay(5)
-        print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
+        # print(self.pquery(self.cmd.file.TRLF_req.path(self.download_dir + file_name)))
         # delay(5)
         # print(self.pquery(self.cmd.mode.gen.str()))
-        delay(1)
+        # delay(1)
         print(self.pquery(self.cmd.file.select.path(file_name), True))
         delay(1)
         print(self.pquery(self.cmd.trigGen.manual_start.str(), True))
@@ -305,9 +271,9 @@ class com_interface:
         # CKLF Ford ES-XW7T-1A278-AC - CI210 -.dsg:31.000000, 1, 1, 3, 0, 0;'
         # Protocol is not working for this command
         # check the start and end termination leads to en error
-        txt = self.pquery(self.cmd.file.check_details.path(file_name), False, False)
+        txt = self.pquery(self.cmd.file.check_details.path(file_name), False, True)
         delay(1)
-        txt = self.pquery(self.cmd.file.check_details.path(file_name), False, False)
+        txt = self.pquery(self.cmd.file.check_details.path(file_name), False, True)
         print("file:", txt)
         txt = txt.split(":")  # get text and digits separated
         txt = txt[1]  # select only digits array
