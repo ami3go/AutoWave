@@ -164,15 +164,15 @@ class com_interface:
                         # #  x9b - check sum
                         # print("p_check:", return_raw)
                         return_raw = return_raw[1:-2]
-                        # return_str = return_raw.decode("utf-8")
+                        return_str = return_raw.decode("utf-8")
+                        if err_check is True:
+                            if (return_str.find(":ERR") != -1):
+                                raise Exception("Error in replay")
+                        return return_str
+
                     else:
                         raise Exception("Error in start(0x02)/end(0x03) terminator")
-                if err_check is True:
-                    # return_raw = return_raw[1:-2]
-                    return_str = return_raw.decode("utf-8")
-                    #need to be corrected
-                    if (return_str.find(":ERR") != -1):
-                        raise Exception("Error in replay")
+
 
                 return return_raw.decode("utf-8")
 
