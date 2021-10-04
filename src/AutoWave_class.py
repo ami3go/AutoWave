@@ -167,12 +167,13 @@ class com_interface:
                 return_raw = self.inst.read_raw()
                 # print("read_raw:",return_raw )
                 # check return line
-                if return_raw == b'\x19':
-                    raise Exception("Device: BUSY")
-                if return_raw == b'\x16':
-                    raise Exception("Device: NOT READY")
-                if return_raw == b'\x15':
-                    raise Exception("Device: Negative ACKnowledge")
+                if len(return_raw) == 1:
+                    if return_raw == b'\x19':
+                        raise Exception("Device: BUSY")
+                    if return_raw == b'\x16':
+                        raise Exception("Device: NOT READY")
+                    if return_raw == b'\x15':
+                        raise Exception("Device: Negative ACKnowledge")
                 if p_check is True:
                     # TBD: require to add check sum check
                     check_sum = dec_array2check_sum(return_raw[1:-2])
@@ -196,7 +197,6 @@ class com_interface:
                 return return_raw.decode("utf-8")
 
             except Exception as e:
-                # print("Pquery:",cmd_str,"Ret:",return_raw," ",e," ", i, )
                 print(f"Pquery[{i}]: {cmd_str}, Reply: {return_raw}, Error: {e}")
                 delay(5)
 
