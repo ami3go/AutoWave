@@ -205,6 +205,12 @@ class com_interface:
                 return_raw = self.inst.read_raw()
                 # print("read_raw:",return_raw )
                 # check return line
+                if return_raw == b'\x19':
+                    raise Exception("Device: BUSY")
+                if return_raw == b'\x16':
+                    raise Exception("Device: NOT READY")
+                if return_raw == b'\x15':
+                    raise Exception("Device: Negative ACKnowledge")
                 if return_raw[0] == 0x02 and return_raw[-2] == 0x03:
                     # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
                     # #  x02 - start symbol
