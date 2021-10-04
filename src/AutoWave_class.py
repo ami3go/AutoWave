@@ -26,6 +26,16 @@ GLOBAL_TOUT = 10  # IO time out in milliseconds
 
 
 def range_check(val, min, max, val_name):
+    """
+    Checking if the value inside the range  min>=val<=max
+
+    :param val: input value
+    :param min: minimal value to check with
+    :param max: maxinum value to check with
+    :param val_name: name of parameter. In case of out of range name will be printer to help find an error
+    :type val_name: string
+    :return: return Val if in the range, val=max if >=max, val=min if val<=min
+    """
     if val > max:
         print(f"Wrong {val_name}: {val}. Max value should be less then {max}")
         val = max
@@ -34,79 +44,62 @@ def range_check(val, min, max, val_name):
         val = min
     return val
 
-
-# def str2check_sum(txt):
-#     '''
-#     Calculate a check sum for text string
-#
-#     :param txt: input test string
-#     :type txt: str
-#     :return: if (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
-#     '''
-#     sum = 0  # variable for check summ
-#     for item in txt:
-#         # sum = sum + hex(item.encode('utf-8').hex())
-#         # print(f"Symbol: {item}, value: {ord(item)}")
-#         sum = sum + int(ord(item))
-#     check_sum = sum & 0x00FF
-#     # print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
-#     #  If the checksum is less or equal to 0x20, 0x20 is added again.
-#     #  Thus ensures that the checksum is not interpreted as control character.
-#     if check_sum <= 0x20:
-#         check_sum += 0x20
-#     return check_sum
-
 def str2dec_array(txt):
-    '''
-    Converting string to decial array.
+    """
+    Converting string to decimal array.
 
     :param txt: text sting input
     :return: decimal array
-    '''
+    """
     cmd = []  # array for formatted command
     for item in txt:
         cmd.append(ord(item))
     return cmd
+
 def dec_array2check_sum(dec_array):
-    '''
+    """
     Calculate a check sum for decimal array
 
     :param dec_array: binary array
     :return: calclulated check summ according to documentation
-    '''
+    """
     check_sum = sum(dec_array) & 0x00FF
     if check_sum <= 0x20:
         check_sum += 0x20
     return check_sum
 
 def str2check_sum(txt):
-    '''
+    """
     Calculate a check sum for text string
 
     :param txt: input test string
     :type txt: str
     :return: Check sum. If (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
-    '''
+    """
     array = str2dec_array(txt)
     return dec_array2check_sum(array)
 
 
 class com_interface:
+    """
+    class for communicating with Autowave generator using GPIB bus
+    """
     def __init__(self):
-        # Commands Subsystem
-        # this is the list of Subsystem commands
-        # super(communicator, self).__init__(port="COM10",baudrate=115200, timeout=0.1)
         self.rm = pyvisa.ResourceManager()
         self.res_name = None
-        print(self.rm)
+        print(self.rm) # check what kind of lib is used for VISA
         self.inst = None
         self.download_dir = None
-        self.cmd = storage()
         self.start_time = None
+        self.cmd = storage()  # init command structure
 
         # self.app = self.rm.open_resource(INSTRUMENT_VISA_ADDRESS)
 
     def init(self):
+        """
+        The methods will automatically look at the list of available device and search for AutoWave generator
+        """
+
         rm_list = self.rm.list_resources()
         i = 0
         for item in rm_list:
@@ -118,27 +111,55 @@ class com_interface:
         self.inst.timeout = 2000  # timeout in ms
         print("Connected to: ", self.inst.query("*IDN?"))
         delay()
-        print("ECHO: ", self.inst.query("*ECHO:ON"))
+        self.inst.query("*ECHO:ON")
         delay()
-        print("Protocol OFF: ", self.inst.query("*PRCL:ON"))
+        self.inst.query("*PRCL:ON")
         delay()
+        # move cmd.mode.gen.str() for stable work
+        # in manual it should be at "file_run"
         print("Set generator mode: ", self.pquery(self.cmd.mode.gen.str()))
         delay()
 
 
     def send(self, txt):
-        # will put sending command here
-        # print(f'Sending: {txt}')
+        """
+         Sending the regula VISA string
+
+         :param txt: VISA string command
+         :return: None
+         """
+
         self.inst.write(txt)
         delay()
 
+    def query(self, cmd_str):
+        """
+        Query the regula VISA string. It will resend 10 time in case of any error
+
+        :param cmd_str: VISA string command
+        :type cmd_str: str
+
+        :return: VISA string replay
+        """
+        for i in range(10):
+            try:
+                # debug print to check how may tries
+                # print("trying",i)
+                return_str = self.inst.query(cmd_str)
+                delay()  # regular delay according to datasheet before next command
+                return return_str
+
+            except Exception as e:
+                print(f"query[{i}]: {cmd_str}, Reply: {return_str}, Error: {e}")
+                delay(5)
+
     def psend(self, txt_cmd):
-        '''
+        """
         Sending protocol command: STX=0x02 + Command + ETX=0x03 + CheckSum
         :param txt_cmd: VISA string command
         :type txt_cmd: str
         :return: None
-        '''
+        """
         cmd = str2dec_array(txt_cmd)
         cmd.insert(0, 2)  # insertion of STX=0x02 to a first place
         cmd.append(3)  # termination message with ETX=0x03
@@ -146,6 +167,7 @@ class com_interface:
         # print(f"protocol cmd: {cmd}")
         # print(bytes(cmd))
         self.inst.write_raw(bytes(cmd))
+        delay()
 
     def pquery(self, cmd_str, err_check=False, p_check=True):
         '''
@@ -167,6 +189,13 @@ class com_interface:
                 return_raw = self.inst.read_raw()
                 # print("read_raw:",return_raw )
                 # check return line
+                if len(return_raw) == 1:
+                    if return_raw == b'\x19':
+                        raise Exception("Device: BUSY")
+                    if return_raw == b'\x16':
+                        raise Exception("Device: NOT READY")
+                    if return_raw == b'\x15':
+                        raise Exception("Device: Negative ACKnowledge")
                 if p_check is True:
                     # TBD: require to add check sum check
                     check_sum = dec_array2check_sum(return_raw[1:-2])
@@ -190,64 +219,11 @@ class com_interface:
                 return return_raw.decode("utf-8")
 
             except Exception as e:
-                # print("Pquery:",cmd_str,"Ret:",return_raw," ",e," ", i, )
                 print(f"Pquery[{i}]: {cmd_str}, Reply: {return_raw}, Error: {e}")
                 delay(5)
 
-    # def pquery2(self, cmd_str, status_check=0, protocol_check=0):
-    #     '''
-    #     Delay and retry in cause of old device with slow processing time
-    #     In case of error a 10 attempts will be made before everything will get crashed.
-    #
-    #     :param cmd_str: VISA string command
-    #     :type cmd_str: str
-    #     :return: instument replay string
-    #     :rtype: str
-    #     '''
-    #     #
-    #     #
-    #     for i in range(10):
-    #         try:
-    #             # debug print to check how may tries
-    #             # print("trying",i)
-    #             self.psend(cmd_str)
-    #             delay()  # regular delay according to datasheet before next command
-    #             return_raw = None
-    #             return_raw = self.inst.read_raw()
-    #             # print("read_raw:",return_raw )
-    #             # check return line
-    #             if return_raw[0] == 0x02 and return_raw[-2] == 0x03:
-    #                 # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
-    #                 # #  x02 - start symbol
-    #                 # #  x03 - stop symbol
-    #                 # #  x9b - check sum
-    #                 return_raw = return_raw[1:-2]
-    #                 return_str = return_raw.decode("utf-8")
-    #                 if err_check == 1:
-    #                     if (return_str.find(":ERR") != -1):
-    #                         raise Exception("Error in replay")
-    #                 return return_str
-    #             raise Exception("Error in start(0x02)/end(0x03) terminator")
-    #
-    #         except Exception as e:
-    #             # print("Pquery:",cmd_str,"Ret:",return_raw," ",e," ", i, )
-    #             print(f"Pquery[{i}]: {cmd_str}, Reply: {return_raw}, Error: {e}")
-    #             delay(5)
 
-    def query(self, cmd_str):
-        # delay and retry in cause of old device with slow processing time
-        # cycle will make 10 attempts before everything will get crashed.
-        for i in range(10):
-            try:
-                # debug print to check how may tries
-                # print("trying",i)
-                return_val = self.inst.query(cmd_str)
-                delay()  # regular delay according to datasheet before next command
-                return return_val
 
-            except Exception as e:
-                print("Pquery:", cmd_str, " ", e, " ", i)
-                delay(5)
 
     def close(self):
         self.ser.close()
