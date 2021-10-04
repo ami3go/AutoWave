@@ -167,6 +167,12 @@ class com_interface:
                 return_raw = self.inst.read_raw()
                 # print("read_raw:",return_raw )
                 # check return line
+                if return_raw == b'\x19':
+                    raise Exception("Device: BUSY")
+                if return_raw == b'\x16':
+                    raise Exception("Device: NOT READY")
+                if return_raw == b'\x15':
+                    raise Exception("Device: Negative ACKnowledge")
                 if p_check is True:
                     # TBD: require to add check sum check
                     check_sum = dec_array2check_sum(return_raw[1:-2])
