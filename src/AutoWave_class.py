@@ -122,18 +122,23 @@ class com_interface:
 
 
     def send(self, txt):
-        # will put sending command here
-        # print(f'Sending: {txt}')
+        """
+         Sending the regula VISA string
+
+         :param txt: VISA string command
+         :return: None
+         """
+
         self.inst.write(txt)
         delay()
 
     def psend(self, txt_cmd):
-        '''
+        """
         Sending protocol command: STX=0x02 + Command + ETX=0x03 + CheckSum
         :param txt_cmd: VISA string command
         :type txt_cmd: str
         :return: None
-        '''
+        """
         cmd = str2dec_array(txt_cmd)
         cmd.insert(0, 2)  # insertion of STX=0x02 to a first place
         cmd.append(3)  # termination message with ETX=0x03
@@ -141,6 +146,7 @@ class com_interface:
         # print(f"protocol cmd: {cmd}")
         # print(bytes(cmd))
         self.inst.write_raw(bytes(cmd))
+        delay()
 
     def pquery(self, cmd_str, err_check=False, p_check=True):
         '''
@@ -236,18 +242,21 @@ class com_interface:
     #             delay(5)
 
     def query(self, cmd_str):
-        # delay and retry in cause of old device with slow processing time
-        # cycle will make 10 attempts before everything will get crashed.
+        """
+
+        :param cmd_str:
+        :return:
+        """
         for i in range(10):
             try:
                 # debug print to check how may tries
                 # print("trying",i)
-                return_val = self.inst.query(cmd_str)
+                return_str = self.inst.query(cmd_str)
                 delay()  # regular delay according to datasheet before next command
-                return return_val
+                return return_str
 
             except Exception as e:
-                print("Pquery:", cmd_str, " ", e, " ", i)
+                print(f"query[{i}]: {cmd_str}, Reply: {return_str}, Error: {e}")
                 delay(5)
 
     def close(self):
