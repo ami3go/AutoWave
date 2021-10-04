@@ -26,6 +26,16 @@ GLOBAL_TOUT = 10  # IO time out in milliseconds
 
 
 def range_check(val, min, max, val_name):
+    """
+    Checking if the value inside the range  min>=val<=max
+
+    :param val: input value
+    :param min: minimal value to check with
+    :param max: maxinum value to check with
+    :param val_name: name of parameter. In case of out of range name will be printer to help find an error
+    :type val_name: string
+    :return: return Val if in the range, val=max if >=max, val=min if val<=min
+    """
     if val > max:
         print(f"Wrong {val_name}: {val}. Max value should be less then {max}")
         val = max
@@ -34,79 +44,62 @@ def range_check(val, min, max, val_name):
         val = min
     return val
 
-
-# def str2check_sum(txt):
-#     '''
-#     Calculate a check sum for text string
-#
-#     :param txt: input test string
-#     :type txt: str
-#     :return: if (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
-#     '''
-#     sum = 0  # variable for check summ
-#     for item in txt:
-#         # sum = sum + hex(item.encode('utf-8').hex())
-#         # print(f"Symbol: {item}, value: {ord(item)}")
-#         sum = sum + int(ord(item))
-#     check_sum = sum & 0x00FF
-#     # print(f"sum: {sum}, check_sum: {check_sum}, cmd: {cmd}")
-#     #  If the checksum is less or equal to 0x20, 0x20 is added again.
-#     #  Thus ensures that the checksum is not interpreted as control character.
-#     if check_sum <= 0x20:
-#         check_sum += 0x20
-#     return check_sum
-
 def str2dec_array(txt):
-    '''
-    Converting string to decial array.
+    """
+    Converting string to decimal array.
 
     :param txt: text sting input
     :return: decimal array
-    '''
+    """
     cmd = []  # array for formatted command
     for item in txt:
         cmd.append(ord(item))
     return cmd
+
 def dec_array2check_sum(dec_array):
-    '''
+    """
     Calculate a check sum for decimal array
 
     :param dec_array: binary array
     :return: calclulated check summ according to documentation
-    '''
+    """
     check_sum = sum(dec_array) & 0x00FF
     if check_sum <= 0x20:
         check_sum += 0x20
     return check_sum
 
 def str2check_sum(txt):
-    '''
+    """
     Calculate a check sum for text string
 
     :param txt: input test string
     :type txt: str
     :return: Check sum. If (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
-    '''
+    """
     array = str2dec_array(txt)
     return dec_array2check_sum(array)
 
 
 class com_interface:
+    """
+    class for communicating with Autowave generator using GPIB bus
+    """
     def __init__(self):
-        # Commands Subsystem
-        # this is the list of Subsystem commands
-        # super(communicator, self).__init__(port="COM10",baudrate=115200, timeout=0.1)
         self.rm = pyvisa.ResourceManager()
         self.res_name = None
-        print(self.rm)
+        print(self.rm) # check what kind of lib is used for VISA
         self.inst = None
         self.download_dir = None
-        self.cmd = storage()
         self.start_time = None
+        self.cmd = storage()  # init command structure
 
         # self.app = self.rm.open_resource(INSTRUMENT_VISA_ADDRESS)
 
     def init(self):
+        """
+        The methods will automatically look at the list of available device and search for AutoWave generator
+        """
+
         rm_list = self.rm.list_resources()
         i = 0
         for item in rm_list:
@@ -118,10 +111,12 @@ class com_interface:
         self.inst.timeout = 2000  # timeout in ms
         print("Connected to: ", self.inst.query("*IDN?"))
         delay()
-        print("ECHO: ", self.inst.query("*ECHO:ON"))
+        self.inst.query("*ECHO:ON")
         delay()
-        print("Protocol OFF: ", self.inst.query("*PRCL:ON"))
+        self.inst.query("*PRCL:ON")
         delay()
+        # move cmd.mode.gen.str() for stable work
+        # in manual it should be at "file_run"
         print("Set generator mode: ", self.pquery(self.cmd.mode.gen.str()))
         delay()
 
