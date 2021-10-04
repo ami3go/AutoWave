@@ -57,12 +57,24 @@ def range_check(val, min, max, val_name):
 #     return check_sum
 
 def str2dec_array(txt):
+    '''
+    Converting string to decial array.
+
+    :param txt: text sting input
+    :return: decimal array
+    '''
     cmd = []  # array for formatted command
     for item in txt:
         cmd.append(ord(item))
     return cmd
-def array2str2check_sum(array_var):
-    check_sum = sum(array_var) & 0x00FF
+def dec_array2check_sum(dec_array):
+    '''
+    Calculate a check sum for decimal array
+
+    :param dec_array: binary array
+    :return: calclulated check summ according to documentation
+    '''
+    check_sum = sum(dec_array) & 0x00FF
     if check_sum <= 0x20:
         check_sum += 0x20
     return check_sum
@@ -70,12 +82,13 @@ def array2str2check_sum(array_var):
 def str2check_sum(txt):
     '''
     Calculate a check sum for text string
+
     :param txt: input test string
     :type txt: str
-    :return: if (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
+    :return: Check sum. If (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
     '''
     array = str2dec_array(txt)
-    return array2str2check_sum(array)
+    return dec_array2check_sum(array)
 
 
 class com_interface:
@@ -156,7 +169,7 @@ class com_interface:
                 # check return line
                 if p_check is True:
                     # TBD: require to add check sum check
-                    check_sum = array2str2check_sum(return_raw[1:-2])
+                    check_sum = dec_array2check_sum(return_raw[1:-2])
                     if (return_raw[0] == 0x02) and (return_raw[-2] == 0x03) and (check_sum == return_raw[-1]):
                         # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
                         # #  x02 - start symbol
