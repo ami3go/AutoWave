@@ -1,0 +1,147 @@
+.TH "GPIB_pyvisa" 3 "Tue Oct 5 2021" "AutoWave control python library" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+GPIB_pyvisa
+.SH SYNOPSIS
+.br
+.PP
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "def \fBdelay_cmd\fP (time_s=2)"
+.br
+.ti -1c
+.RI "def \fBpsend\fP (txt_cmd)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "list \fBAG_status\fP"
+.br
+.ti -1c
+.RI "\fBrm\fP = pyvisa\&.ResourceManager()"
+.br
+.ti -1c
+.RI "\fBrm_list\fP = rm\&.list_resources()"
+.br
+.ti -1c
+.RI "int \fBi\fP = 0"
+.br
+.ti -1c
+.RI "string \fBresource_name\fP = ''"
+.br
+.ti -1c
+.RI "\fBinst\fP = rm\&.open_resource(\fBresource_name\fP)"
+.br
+.ti -1c
+.RI "\fBwrite_termination\fP"
+.br
+.ti -1c
+.RI "\fBfile_list\fP = inst\&.write_raw(\fBpsend\fP('DIR? /home/guest/DowFiles'))"
+.br
+.ti -1c
+.RI "\fBfile_list_array\fP = file_list\&.split(',')"
+.br
+.ti -1c
+.RI "int \fBnumber\fP = 0"
+.br
+.ti -1c
+.RI "string \fBtest_file_name\fP = 'Ford ES\-XW7T\-1A278\-AC \- CI210 \-\&.dsg'"
+.br
+.ti -1c
+.RI "\fBstatus\fP = inst\&.query('STAT? TEST')"
+.br
+.RI "requires to send double start\&. "
+.ti -1c
+.RI "\fBst\fP = status\&.replace('STAT TEST:', '')"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "def GPIB_pyvisa\&.delay_cmd ( time_s = \fC2\fP)"
+
+.PP
+Definition at line \fB24\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "def GPIB_pyvisa\&.psend ( txt_cmd)"
+
+.PP
+Definition at line \fB27\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SH "Variable Documentation"
+.PP 
+.SS "list GPIB_pyvisa\&.AG_status"
+\fBInitial value:\fP
+.PP
+.nf
+1 =  ["stopped",
+2             "ready",
+3             "started",
+4             "fail",
+5             "fast",
+6             "DSP not ok",
+7             "break",
+8             "not ready",
+9             "finished",
+10             "iterate",
+11             "undefined",
+12             "write to file",
+13             "file processing",]
+.fi
+.PP
+Definition at line \fB9\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "GPIB_pyvisa\&.file_list = inst\&.write_raw(\fBpsend\fP('DIR? /home/guest/DowFiles'))"
+
+.PP
+Definition at line \fB96\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "GPIB_pyvisa\&.file_list_array = file_list\&.split(',')"
+
+.PP
+Definition at line \fB98\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "int GPIB_pyvisa\&.i = 0"
+
+.PP
+Definition at line \fB59\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "GPIB_pyvisa\&.inst = rm\&.open_resource(\fBresource_name\fP)"
+
+.PP
+Definition at line \fB68\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "int GPIB_pyvisa\&.number = 0"
+
+.PP
+Definition at line \fB99\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "GPIB_pyvisa\&.resource_name = ''"
+
+.PP
+Definition at line \fB60\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "GPIB_pyvisa\&.rm = pyvisa\&.ResourceManager()"
+
+.PP
+Definition at line \fB57\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "GPIB_pyvisa\&.rm_list = rm\&.list_resources()"
+
+.PP
+Definition at line \fB58\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "GPIB_pyvisa\&.st = status\&.replace('STAT TEST:', '')"
+
+.PP
+Definition at line \fB127\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "GPIB_pyvisa\&.status = inst\&.query('STAT? TEST')"
+
+.PP
+requires to send double start\&. \&. to trigger genetation 
+.PP
+Definition at line \fB126\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "string GPIB_pyvisa\&.test_file_name = 'Ford ES\-XW7T\-1A278\-AC \- CI210 \-\&.dsg'"
+
+.PP
+Definition at line \fB104\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SS "GPIB_pyvisa\&.write_termination"
+
+.PP
+Definition at line \fB74\fP of file \fBGPIB_pyvisa\&.py\fP\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for AutoWave control python library from the source code\&.

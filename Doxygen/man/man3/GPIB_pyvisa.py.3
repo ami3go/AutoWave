@@ -1,0 +1,72 @@
+.TH "C:/Users/alexandr/PycharmProjects/Libs/AutoWave/src/GPIB_pyvisa.py" 3 "Tue Oct 5 2021" "AutoWave control python library" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+C:/Users/alexandr/PycharmProjects/Libs/AutoWave/src/GPIB_pyvisa.py
+.SH SYNOPSIS
+.br
+.PP
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI "namespace \fBGPIB_pyvisa\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "def \fBGPIB_pyvisa\&.delay_cmd\fP (time_s=2)"
+.br
+.ti -1c
+.RI "def \fBGPIB_pyvisa\&.psend\fP (txt_cmd)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "list \fBGPIB_pyvisa\&.AG_status\fP"
+.br
+.ti -1c
+.RI "\fBGPIB_pyvisa\&.rm\fP = pyvisa\&.ResourceManager()"
+.br
+.ti -1c
+.RI "\fBGPIB_pyvisa\&.rm_list\fP = rm\&.list_resources()"
+.br
+.ti -1c
+.RI "int \fBGPIB_pyvisa\&.i\fP = 0"
+.br
+.ti -1c
+.RI "string \fBGPIB_pyvisa\&.resource_name\fP = ''"
+.br
+.ti -1c
+.RI "\fBGPIB_pyvisa\&.inst\fP = rm\&.open_resource(resource_name)"
+.br
+.ti -1c
+.RI "\fBGPIB_pyvisa\&.write_termination\fP"
+.br
+.ti -1c
+.RI "\fBGPIB_pyvisa\&.file_list\fP = inst\&.write_raw(psend('DIR? /home/guest/DowFiles'))"
+.br
+.ti -1c
+.RI "\fBGPIB_pyvisa\&.file_list_array\fP = file_list\&.split(',')"
+.br
+.ti -1c
+.RI "int \fBGPIB_pyvisa\&.number\fP = 0"
+.br
+.ti -1c
+.RI "string \fBGPIB_pyvisa\&.test_file_name\fP = 'Ford ES\-XW7T\-1A278\-AC \- CI210 \-\&.dsg'"
+.br
+.ti -1c
+.RI "\fBGPIB_pyvisa\&.status\fP = inst\&.query('STAT? TEST')"
+.br
+.RI "requires to send double start\&. "
+.ti -1c
+.RI "\fBGPIB_pyvisa\&.st\fP = status\&.replace('STAT TEST:', '')"
+.br
+.in -1c
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for AutoWave control python library from the source code\&.
