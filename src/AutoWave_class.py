@@ -56,6 +56,7 @@ def str2dec_array(txt):
         cmd.append(ord(item))
     return cmd
 
+
 def dec_array2check_sum(dec_array):
     """
     Calculate a check sum for decimal array
