@@ -1,0 +1,168 @@
+.TH "AutoWave_class" 3 "Tue Oct 5 2021" "AutoWave control python library" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+AutoWave_class
+.SH SYNOPSIS
+.br
+.PP
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "class \fBcom_interface\fP"
+.br
+.ti -1c
+.RI "class \fBdig_param3\fP"
+.br
+.ti -1c
+.RI "class \fBfile\fP"
+.br
+.ti -1c
+.RI "class \fBmode\fP"
+.br
+.ti -1c
+.RI "class \fBreq3\fP"
+.br
+.ti -1c
+.RI "class \fBreq_on_off\fP"
+.br
+.ti -1c
+.RI "class \fBset_voltage\fP"
+.br
+.ti -1c
+.RI "class \fBstatus\fP"
+.br
+.ti -1c
+.RI "class \fBstorage\fP"
+.br
+.ti -1c
+.RI "class \fBstr3\fP"
+.br
+.ti -1c
+.RI "class \fBstr_param3\fP"
+.br
+.ti -1c
+.RI "class \fBtrig_gen\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "def \fBdelay\fP (time_in_sec=0\&.25)"
+.br
+.ti -1c
+.RI "def \fBrange_check\fP (val, min, max, val_name)"
+.br
+.ti -1c
+.RI "def \fBstr2dec_array\fP (txt)"
+.br
+.ti -1c
+.RI "def \fBdec_array2check_sum\fP (dec_array)"
+.br
+.ti -1c
+.RI "def \fBstr2check_sum\fP (txt)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "\fBcmd\fP = \fBstorage\fP()"
+.br
+.ti -1c
+.RI "list \fBcmd_list\fP = []"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "def AutoWave_class\&.dec_array2check_sum ( dec_array)"
+
+.PP
+.nf
+Calculate a check sum for decimal array
+
+:param dec_array: binary array
+:return: calclulated check summ according to documentation
+
+.fi
+.PP
+ 
+.PP
+Definition at line \fB49\fP of file \fBAutoWave_class\&.py\fP\&.
+.SS "def AutoWave_class\&.delay ( time_in_sec = \fC0\&.25\fP)"
+
+.PP
+.nf
+Time delay based on time.sleep().
+It is recommended to use a minimum delay of 250ms between two GPIB commands
+
+:param time_in_sec: delay time
+:return: None
+
+.fi
+.PP
+ 
+.PP
+Definition at line \fB7\fP of file \fBAutoWave_class\&.py\fP\&.
+.SS "def AutoWave_class\&.range_check ( val,  min,  max,  val_name)"
+
+.PP
+.nf
+Checking if the value inside the range  min>=val<=max
+
+:param val: input value
+:param min: minimal value to check with
+:param max: maxinum value to check with
+:param val_name: name of parameter. In case of out of range event the name will be printer to help find an error
+:type val_name: string
+:return: return Val if in the range, val=max if >=max, val=min if val<=min
+
+.fi
+.PP
+ 
+.PP
+Definition at line \fB18\fP of file \fBAutoWave_class\&.py\fP\&.
+.SS "def AutoWave_class\&.str2check_sum ( txt)"
+
+.PP
+.nf
+Calculate a check sum for text string
+
+:param txt: input test string
+:type txt: str
+:return: Check sum. If (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
+
+.fi
+.PP
+ 
+.PP
+Definition at line \fB61\fP of file \fBAutoWave_class\&.py\fP\&.
+.SS "def AutoWave_class\&.str2dec_array ( txt)"
+
+.PP
+.nf
+Converting string to decimal array.
+
+:param txt: text sting input
+:return: decimal array
+
+.fi
+.PP
+ 
+.PP
+Definition at line \fB37\fP of file \fBAutoWave_class\&.py\fP\&.
+.SH "Variable Documentation"
+.PP 
+.SS "AutoWave_class\&.cmd = \fBstorage\fP()"
+
+.PP
+Definition at line \fB568\fP of file \fBAutoWave_class\&.py\fP\&.
+.SS "list AutoWave_class\&.cmd_list = []"
+
+.PP
+Definition at line \fB585\fP of file \fBAutoWave_class\&.py\fP\&.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for AutoWave control python library from the source code\&.

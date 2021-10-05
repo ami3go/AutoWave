@@ -1,28 +1,18 @@
 import time
 import pyvisa  # PyVisa info @ http://PyVisa.readthedocs.io/en/stable/
 import datetime
-import codecs
 
 
 # It is recommended to use a minimum delay of 250ms between two commands
 def delay(time_in_sec=0.25):
+    """
+    Time delay based on time.sleep().
+    It is recommended to use a minimum delay of 250ms between two GPIB commands
+
+    :param time_in_sec: delay time
+    :return: None
+    """
     time.sleep(time_in_sec)
-
-
-## Number of Points to request
-USER_REQUESTED_POINTS = 1000
-## None of these scopes offer more than 8,000,000 points
-## Setting this to 8000000 or more will ensure that the maximum number of available points is retrieved, though often less will come back.
-## Average and High Resolution acquisition types have shallow memory depth, and thus acquiring waveforms in Normal acq. type and post processing for High Res. or repeated acqs. for Average is suggested if more points are desired.
-## Asking for zero (0) points, a negative number of points, fewer than 100 points, or a non-integer number of points (100.1 -> error, but 100. or 100.0 is ok) will result in an error, specifically -222,"Data out of range"
-
-## Initialization constants
-INSTRUMENT_VISA_ADDRESS = 'USB0::0x0957::0x0A07::MY48001027::0::INSTR'  # Get this from Keysight IO Libraries Connection Expert
-## Note: sockets are not supported in this revision of the script (though it is possible), and PyVisa 1.8 does not support HiSlip, nor do these scopes.
-## Note: USB transfers are generally fastest.
-## Video: Connecting to Instruments Over LAN, USB, and GPIB in Keysight Connection Expert: https://youtu.be/sZz8bNHX5u4
-
-GLOBAL_TOUT = 10  # IO time out in milliseconds
 
 
 def range_check(val, min, max, val_name):
@@ -32,7 +22,7 @@ def range_check(val, min, max, val_name):
     :param val: input value
     :param min: minimal value to check with
     :param max: maxinum value to check with
-    :param val_name: name of parameter. In case of out of range name will be printer to help find an error
+    :param val_name: name of parameter. In case of out of range event the name will be printer to help find an error
     :type val_name: string
     :return: return Val if in the range, val=max if >=max, val=min if val<=min
     """
@@ -109,11 +99,14 @@ class com_interface:
         self.inst.set_visa_attribute(pyvisa.constants.VI_ATTR_SEND_END_EN, 1)
         self.inst.write_termination = ""
         self.inst.timeout = 2000  # timeout in ms
-        print("Connected to: ", self.inst.query("*IDN?"))
+        # the commands below are not crash safe
+        # in case of something will get wrong init() will crash
+        # print("Connected to: ", self.inst.query("*IDN?"))
+        print("Connected to: ", self.inst.query(self.cmd.idn.req()))
         delay()
-        self.inst.query("*ECHO:ON")
+        self.inst.query(self.cmd.echo.on.str())
         delay()
-        self.inst.query("*PRCL:ON")
+        self.inst.query(self.cmd.protocol.on.str())
         delay()
         # move cmd.mode.gen.str() for stable work
         # in manual it should be at "file_run"
@@ -226,12 +219,22 @@ class com_interface:
 
 
     def close(self):
-        self.ser.close()
-        self.ser = None
+        """
+        Close the VISA connection
 
-    def run_test_file(self, file_name, echo="on"):
-        # to do:  no/off echo mode
+        :return: None
+        """
+        self.inst.close()
 
+    def run_test_file(self, file_name):
+        """
+        Run a test file, start generate a test signal form file
+        Note: File should be uploaded to device first. After that you may run it form script.
+        Use EM test PC software to uploaded test to device.
+
+        :param file_name: File name on Autowave device
+        :return: None
+        """
         txt = self.pquery(self.cmd.file.get_dir_download.str(), 1)
         self.download_dir = txt.replace("DIR DOWD:","")
         self.download_dir = self.download_dir + "/"
@@ -252,12 +255,20 @@ class com_interface:
 
 
 
-    def get_test_time(self, file_name, echo="on"):
-        # Ask for duration, channels, events, trigger and master channel of a test file
-        # typical response
-        # CKLF Ford ES-XW7T-1A278-AC - CI210 -.dsg:31.000000, 1, 1, 3, 0, 0;'
+    def get_test_time(self, file_name, echo=True):
+        """
+        Ask for duration, channels, events, trigger and master channel of a test file.
+        Typical response: "CKLF Ford ES-XW7T-1A278-AC - CI210 -.dsg:31.000000, 1, 1, 3, 0, 0;"
         # Protocol is not working for this command
         # check the start and end termination leads to en error
+
+        :param file_name: Name of file located on AutoWave device
+        :type file_name: str
+        :param echo: Enable output in terminal
+        :type echo: bool
+        :return:
+        """
+
         txt = self.pquery(self.cmd.file.check_details.path(file_name), False, True)
         print("file:", txt)
         if txt != None:
@@ -265,7 +276,7 @@ class com_interface:
             txt = txt[1]  # select only digits array
             txt = txt.split(",")  # separate digits
             time_in_sec = float(txt[0])  # selec first digit
-            if echo == "on":
+            if echo == True:
                 print(f"Test Duration: {datetime.timedelta(seconds=round(time_in_sec))} , "
                       f"File:{file_name}, Channel:{txt[1]}, "
                       f"Events:{txt[2]}")
@@ -322,7 +333,16 @@ class com_interface:
         self.send(self.cmd.reboot.str())
 
     def set_dc_voltage(self, volt=13.5, ch=1):
-        ch = range_check(ch, 1, 4, "select channel")
+        """
+        Enable DC voltage in IDE state, when test is not running.
+
+        :param volt: target voltage in rage of 0V - 60V.
+        :param ch: number of output channel. Check that VDS200 is connected to it .
+        :type ch: int.
+        :return: None.
+        """
+        ch = int(range_check(ch, 1, 4, "select channel"))
+        volt = range_check(volt, 0, 60, "Setting DC voltage")
         if ch == 1:
             self.psend(self.cmd.setVoltage.out1.val(volt))
         elif ch == 2:
@@ -335,7 +355,16 @@ class com_interface:
             raise Exception("Something went wrong. Func: set_dc_voltage(self, volt, ch=1) ")
 
     def set_dc_offset(self, volt=0, ch=1):
-        ch = range_check(ch, 1, 4, "select channel")
+        """
+        Enable offset for DC voltage.
+
+        :param volt: target voltage in rage of 0V - 60V.
+        :param ch: number of output channel. Check that VDS200 is connected to it .
+        :type ch: int.
+        :return: None.
+        """
+        ch = int(range_check(ch, 1, 4, "select channel"))
+        volt = range_check(volt, -60, 60, "Offset voltage ")
         if ch == 1:
             self.psend(self.cmd.setOffset.out1.val(volt))
         elif ch == 2:
@@ -368,16 +397,16 @@ class str3:
         return self.cmd
 
 
-class str_and_req:
-    def __init__(self, prefix):
-        self.prefix = prefix
-        self.cmd = self.prefix
-
-    def str(self, ):
-        return self.cmd
-
-    def req(self):
-        return self.cmd + "?"
+# class str_and_req:
+#     def __init__(self, prefix):
+#         self.prefix = prefix
+#         self.cmd = self.prefix
+#
+#     def str(self, ):
+#         return self.cmd
+#
+#     def req(self):
+#         return self.cmd + "?"
 
 
 class req_on_off(req3):
@@ -389,16 +418,16 @@ class req_on_off(req3):
         self.off = str3(self.prefix + "OFF")
 
 
-class dig_param:
-    def __init__(self):
-        self.cmd = None  # this value to be inherited for high order class
-        self.max = None  # this value to be inherited for high order class
-        self.min = None  # this value to be inherited for high order class
-
-    def val(self, count=0):
-        count = range_check(count, self.min, self.max, "MAX count")
-        txt = f'{self.cmd} {count}'
-        return txt
+# class dig_param:
+#     def __init__(self):
+#         self.cmd = None  # this value to be inherited for high order class
+#         self.max = None  # this value to be inherited for high order class
+#         self.min = None  # this value to be inherited for high order class
+#
+#     def val(self, count=0):
+#         count = range_check(count, self.min, self.max, "MAX count")
+#         txt = f'{self.cmd} {count}'
+#         return txt
 
 
 class dig_param3:
@@ -484,6 +513,7 @@ class set_voltage():
 
 
 class file():
+    """
     # Command   # Syntax # Description
     # SIZE      # SIZ?   # SIZ? <filePath>    # Ask for file size
     # TRANSMIT  # TRFL   # TRFL <filePath>    # Initialise a file download. (not sending the file) # Return ERR if the file already exists on target.
@@ -495,6 +525,8 @@ class file():
     #           # CKFD?  # CKFD? <FileName>   # Ask for total duration, events of a test file
     #           # CKHD?  # CKHD? <filePath.dpt> # Save header from < filePath.dpt> under </home/ guest/LogFiles/header.hpt> (point file only)
     # FLNM?     # FLNM?  # FLNM? DUTM         # Get the file path of the DUT Events log file # FLNM? ERR  # Get the file path of process errors log file
+
+    """
     def __init__(self, prefix):
         self.prefix = prefix
         self.cmd = self.prefix
