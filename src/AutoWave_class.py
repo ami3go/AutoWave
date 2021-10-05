@@ -193,6 +193,8 @@ class com_interface:
                 # print("read_raw:",return_raw )
                 # check return line
                 if len(return_raw) == 1:
+                    # error code is replied in a single byte digit
+                    # codes and meaning form manual:
                     if return_raw == b'\x19':
                         raise Exception("Device: BUSY")
                     if return_raw == b'\x16':
@@ -200,14 +202,12 @@ class com_interface:
                     if return_raw == b'\x15':
                         raise Exception("Device: Negative ACKnowledge")
                 if p_check is True:
-                    # TBD: require to add check sum check
+                    # checking start, end, checksum termination
                     check_sum = bytearray2check_sum(return_raw[1:-2])
                     if (return_raw[0] == 0x02) and (return_raw[-2] == 0x03) and (check_sum == return_raw[-1]):
-                        # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
-                        # #  x02 - start symbol
-                        # #  x03 - stop symbol
-                        # #  x9b - check sum
-                        # print("p_check:", return_raw)
+                        #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
+                        #  x02-start | TRIG:GEN 1 | x03-stop| x9b-check sum
+                        #  print("p_check:", return_raw)
                         return_raw = return_raw[1:-2]
                         return_str = return_raw.decode("utf-8")
                         if err_check is True:
@@ -217,7 +217,6 @@ class com_interface:
 
                     else:
                         raise Exception("Error in start(0x02)/end(0x03) terminator")
-
 
                 return return_raw.decode("utf-8")
 
