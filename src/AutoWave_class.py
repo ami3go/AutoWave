@@ -333,7 +333,16 @@ class com_interface:
         self.send(self.cmd.reboot.str())
 
     def set_dc_voltage(self, volt=13.5, ch=1):
-        ch = range_check(ch, 1, 4, "select channel")
+        """
+        Enable DC voltage in IDE state, when test is not running.
+
+        :param volt: target voltage in rage of 0V - 60V.
+        :param ch: number of output channel. Check that VDS200 is connected to it .
+        :type ch: int.
+        :return: None.
+        """
+        ch = int(range_check(ch, 1, 4, "select channel"))
+        volt = range_check(volt, 0, 60, "Setting DC voltage")
         if ch == 1:
             self.psend(self.cmd.setVoltage.out1.val(volt))
         elif ch == 2:
@@ -346,7 +355,16 @@ class com_interface:
             raise Exception("Something went wrong. Func: set_dc_voltage(self, volt, ch=1) ")
 
     def set_dc_offset(self, volt=0, ch=1):
-        ch = range_check(ch, 1, 4, "select channel")
+        """
+        Enable offset for DC voltage.
+
+        :param volt: target voltage in rage of 0V - 60V.
+        :param ch: number of output channel. Check that VDS200 is connected to it .
+        :type ch: int.
+        :return: None.
+        """
+        ch = int(range_check(ch, 1, 4, "select channel"))
+        volt = range_check(volt, -60, 60, "Offset voltage ")
         if ch == 1:
             self.psend(self.cmd.setOffset.out1.val(volt))
         elif ch == 2:

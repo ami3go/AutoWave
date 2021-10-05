@@ -141,7 +141,7 @@ Definition at line \fB258\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.got_to_local ( self)"
 
 .PP
-Definition at line \fB361\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB379\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.init ( self)"
 
 .PP
@@ -236,9 +236,33 @@ Definition at line \fB117\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.set_dc_offset ( self,  volt = \fC0\fP,  ch = \fC1\fP)"
 
 .PP
-Definition at line \fB348\fP of file \fBAutoWave_class\&.py\fP\&.
+.nf
+Enable offset for DC voltage.
+
+:param volt: target voltage in rage of 0V - 60V.
+:param ch: number of output channel. Check that VDS200 is connected to it .
+:type ch: int.
+:return: None.
+
+.fi
+.PP
+ 
+.PP
+Definition at line \fB357\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.set_dc_voltage ( self,  volt = \fC13\&.5\fP,  ch = \fC1\fP)"
 
+.PP
+.nf
+Enable DC voltage in IDE state, when test is not running.
+
+:param volt: target voltage in rage of 0V - 60V.
+:param ch: number of output channel. Check that VDS200 is connected to it .
+:type ch: int.
+:return: None.
+
+.fi
+.PP
+ 
 .PP
 Definition at line \fB335\fP of file \fBAutoWave_class\&.py\fP\&.
 .SH "Member Data Documentation"
