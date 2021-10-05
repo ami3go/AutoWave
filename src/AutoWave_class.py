@@ -1,28 +1,18 @@
 import time
 import pyvisa  # PyVisa info @ http://PyVisa.readthedocs.io/en/stable/
 import datetime
-import codecs
 
 
 # It is recommended to use a minimum delay of 250ms between two commands
 def delay(time_in_sec=0.25):
+    """
+    Time delay based on time.sleep().
+    It is recommended to use a minimum delay of 250ms between two GPIB commands
+
+    :param time_in_sec: delay time
+    :return: None
+    """
     time.sleep(time_in_sec)
-
-
-## Number of Points to request
-USER_REQUESTED_POINTS = 1000
-## None of these scopes offer more than 8,000,000 points
-## Setting this to 8000000 or more will ensure that the maximum number of available points is retrieved, though often less will come back.
-## Average and High Resolution acquisition types have shallow memory depth, and thus acquiring waveforms in Normal acq. type and post processing for High Res. or repeated acqs. for Average is suggested if more points are desired.
-## Asking for zero (0) points, a negative number of points, fewer than 100 points, or a non-integer number of points (100.1 -> error, but 100. or 100.0 is ok) will result in an error, specifically -222,"Data out of range"
-
-## Initialization constants
-INSTRUMENT_VISA_ADDRESS = 'USB0::0x0957::0x0A07::MY48001027::0::INSTR'  # Get this from Keysight IO Libraries Connection Expert
-## Note: sockets are not supported in this revision of the script (though it is possible), and PyVisa 1.8 does not support HiSlip, nor do these scopes.
-## Note: USB transfers are generally fastest.
-## Video: Connecting to Instruments Over LAN, USB, and GPIB in Keysight Connection Expert: https://youtu.be/sZz8bNHX5u4
-
-GLOBAL_TOUT = 10  # IO time out in milliseconds
 
 
 def range_check(val, min, max, val_name):
@@ -32,7 +22,7 @@ def range_check(val, min, max, val_name):
     :param val: input value
     :param min: minimal value to check with
     :param max: maxinum value to check with
-    :param val_name: name of parameter. In case of out of range name will be printer to help find an error
+    :param val_name: name of parameter. In case of out of range event the name will be printer to help find an error
     :type val_name: string
     :return: return Val if in the range, val=max if >=max, val=min if val<=min
     """
@@ -109,6 +99,8 @@ class com_interface:
         self.inst.set_visa_attribute(pyvisa.constants.VI_ATTR_SEND_END_EN, 1)
         self.inst.write_termination = ""
         self.inst.timeout = 2000  # timeout in ms
+        # the commands below are not crash safe
+        # in case of something will get wrong init() will crash
         print("Connected to: ", self.inst.query("*IDN?"))
         delay()
         self.inst.query("*ECHO:ON")
