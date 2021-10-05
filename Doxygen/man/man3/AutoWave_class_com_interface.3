@@ -31,10 +31,10 @@ AutoWave_class.com_interface
 .RI "def \fBclose\fP (self)"
 .br
 .ti -1c
-.RI "def \fBrun_test_file\fP (self, file_name, echo='on')"
+.RI "def \fBrun_test_file\fP (self, file_name)"
 .br
 .ti -1c
-.RI "def \fBget_test_time\fP (self, file_name, echo='on')"
+.RI "def \fBget_test_time\fP (self, file_name, echo=True)"
 .br
 .ti -1c
 .RI "def \fBcheck_test_status\fP (self)"
@@ -76,9 +76,6 @@ AutoWave_class.com_interface
 .ti -1c
 .RI "\fBcmd\fP"
 .br
-.ti -1c
-.RI "\fBser\fP"
-.br
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -103,23 +100,48 @@ Definition at line \fB77\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.check_test_status ( self)"
 
 .PP
-Definition at line \fB269\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB288\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.close ( self)"
 
 .PP
-Definition at line \fB220\fP of file \fBAutoWave_class\&.py\fP\&.
+.nf
+Close the VISA connection
+
+:return: None
+
+.fi
+.PP
+ 
+.PP
+Definition at line \fB221\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.disconnect ( self)"
 
 .PP
-Definition at line \fB310\fP of file \fBAutoWave_class\&.py\fP\&.
-.SS "def AutoWave_class\&.com_interface\&.get_test_time ( self,  file_name,  echo = \fC'on'\fP)"
+Definition at line \fB329\fP of file \fBAutoWave_class\&.py\fP\&.
+.SS "def AutoWave_class\&.com_interface\&.get_test_time ( self,  file_name,  echo = \fCTrue\fP)"
 
 .PP
-Definition at line \fB247\fP of file \fBAutoWave_class\&.py\fP\&.
+.nf
+Ask for duration, channels, events, trigger and master channel of a test file.
+Typical response: "CKLF Ford ES-XW7T-1A278-AC - CI210 -.dsg:31.000000, 1, 1, 3, 0, 0;"
+# Protocol is not working for this command
+# check the start and end termination leads to en error
+
+:param file_name: Name of file located on AutoWave device
+:type file_name: str
+:param echo: Enable output in terminal
+:type echo: bool
+:return:
+
+.fi
+.PP
+ 
+.PP
+Definition at line \fB258\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.got_to_local ( self)"
 
 .PP
-Definition at line \fB342\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB361\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.init ( self)"
 
 .PP
@@ -147,7 +169,7 @@ In case of error a 10 attempts will be made before everything will get crashed.
 .PP
  
 .PP
-Definition at line \fB164\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB165\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.psend ( self,  txt_cmd)"
 
 .PP
@@ -161,7 +183,7 @@ Sending protocol command: STX=0x02 + Command + ETX=0x03 + CheckSum
 .PP
  
 .PP
-Definition at line \fB148\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB149\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.query ( self,  cmd_str)"
 
 .PP
@@ -177,15 +199,27 @@ Query the regula VISA string. It will resend 10 time in case of any error
 .PP
  
 .PP
-Definition at line \fB127\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB128\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.reboot ( self)"
 
 .PP
-Definition at line \fB313\fP of file \fBAutoWave_class\&.py\fP\&.
-.SS "def AutoWave_class\&.com_interface\&.run_test_file ( self,  file_name,  echo = \fC'on'\fP)"
+Definition at line \fB332\fP of file \fBAutoWave_class\&.py\fP\&.
+.SS "def AutoWave_class\&.com_interface\&.run_test_file ( self,  file_name)"
 
 .PP
-Definition at line \fB224\fP of file \fBAutoWave_class\&.py\fP\&.
+.nf
+Run a test file, start generate a test signal form file
+Note: File should be uploaded to device first. After that you may run it form script.
+Use EM test PC software to uploaded test to device.
+
+:param file_name: File name on Autowave device
+:return: None
+
+.fi
+.PP
+ 
+.PP
+Definition at line \fB229\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.send ( self,  txt)"
 
 .PP
@@ -198,15 +232,15 @@ Definition at line \fB224\fP of file \fBAutoWave_class\&.py\fP\&.
 .PP
  
 .PP
-Definition at line \fB116\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB117\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.set_dc_offset ( self,  volt = \fC0\fP,  ch = \fC1\fP)"
 
 .PP
-Definition at line \fB329\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB348\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "def AutoWave_class\&.com_interface\&.set_dc_voltage ( self,  volt = \fC13\&.5\fP,  ch = \fC1\fP)"
 
 .PP
-Definition at line \fB316\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB335\fP of file \fBAutoWave_class\&.py\fP\&.
 .SH "Member Data Documentation"
 .PP 
 .SS "AutoWave_class\&.com_interface\&.cmd"
@@ -229,10 +263,6 @@ Definition at line \fB79\fP of file \fBAutoWave_class\&.py\fP\&.
 
 .PP
 Definition at line \fB78\fP of file \fBAutoWave_class\&.py\fP\&.
-.SS "AutoWave_class\&.com_interface\&.ser"
-
-.PP
-Definition at line \fB222\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.com_interface\&.start_time"
 
 .PP

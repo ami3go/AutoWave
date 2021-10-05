@@ -61,71 +61,89 @@ AutoWave_class.file
 .in -1c
 .SH "Detailed Description"
 .PP 
-Definition at line \fB478\fP of file \fBAutoWave_class\&.py\fP\&.
+
+.PP
+.nf
+# Command   # Syntax # Description
+# SIZE      # SIZ?   # SIZ? <filePath>    # Ask for file size
+# TRANSMIT  # TRFL   # TRFL <filePath>    # Initialise a file download. (not sending the file) # Return ERR if the file already exists on target.
+#           # TRFL?  # TRFL? <filePath>   # Initialise a file upload. (not loading the file)            # Return ERR if the file doesn't exist on target
+# DELETE    # DEL    # DEL <filePath>     # Delete a file on target.    # Return ERR if the file doesn't exist
+# DIR?      # DIR?   # DIR? <dirPath>     # Get the absolute paths of default directory or the content of the give directory path
+# CHECK     # CKFL?  # CKFL? <filePath>   # Check if file exists on target (ex.: after download)
+#           # CKLF?  # CKLF? <FileName>   # Ask for duration, channels, events, trigger and master channel of a test file
+#           # CKFD?  # CKFD? <FileName>   # Ask for total duration, events of a test file
+#           # CKHD?  # CKHD? <filePath.dpt> # Save header from < filePath.dpt> under </home/ guest/LogFiles/header.hpt> (point file only)
+# FLNM?     # FLNM?  # FLNM? DUTM         # Get the file path of the DUT Events log file # FLNM? ERR  # Get the file path of process errors log file
+.fi
+.PP
+ 
+.PP
+Definition at line \fB497\fP of file \fBAutoWave_class\&.py\fP\&.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "def AutoWave_class\&.file\&.__init__ ( self,  prefix)"
 
 .PP
-Definition at line \fB490\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB512\fP of file \fBAutoWave_class\&.py\fP\&.
 .SH "Member Data Documentation"
 .PP 
 .SS "AutoWave_class\&.file\&.check_details"
 
 .PP
-Definition at line \fB503\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB525\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.check_file_exist"
 
 .PP
-Definition at line \fB502\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB524\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.check_total_duration"
 
 .PP
-Definition at line \fB504\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB526\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.cmd"
 
 .PP
-Definition at line \fB492\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB514\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.delete"
 
 .PP
-Definition at line \fB493\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB515\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.get_dir_download"
 
 .PP
-Definition at line \fB495\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB517\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.get_dir_record"
 
 .PP
-Definition at line \fB496\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB518\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.get_dir_upgrade"
 
 .PP
-Definition at line \fB497\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB519\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.get_file_list"
 
 .PP
-Definition at line \fB494\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB516\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.get_file_size"
 
 .PP
-Definition at line \fB499\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB521\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.prefix"
 
 .PP
-Definition at line \fB491\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB513\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.select"
 
 .PP
-Definition at line \fB505\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB527\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.TRLF"
 
 .PP
-Definition at line \fB500\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB522\fP of file \fBAutoWave_class\&.py\fP\&.
 .SS "AutoWave_class\&.file\&.TRLF_req"
 
 .PP
-Definition at line \fB501\fP of file \fBAutoWave_class\&.py\fP\&.
+Definition at line \fB523\fP of file \fBAutoWave_class\&.py\fP\&.
 
 .SH "Author"
 .PP 

@@ -495,6 +495,7 @@ class set_voltage():
 
 
 class file():
+    """
     # Command   # Syntax # Description
     # SIZE      # SIZ?   # SIZ? <filePath>    # Ask for file size
     # TRANSMIT  # TRFL   # TRFL <filePath>    # Initialise a file download. (not sending the file) # Return ERR if the file already exists on target.
@@ -506,6 +507,8 @@ class file():
     #           # CKFD?  # CKFD? <FileName>   # Ask for total duration, events of a test file
     #           # CKHD?  # CKHD? <filePath.dpt> # Save header from < filePath.dpt> under </home/ guest/LogFiles/header.hpt> (point file only)
     # FLNM?     # FLNM?  # FLNM? DUTM         # Get the file path of the DUT Events log file # FLNM? ERR  # Get the file path of process errors log file
+
+    """
     def __init__(self, prefix):
         self.prefix = prefix
         self.cmd = self.prefix

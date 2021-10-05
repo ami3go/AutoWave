@@ -1,5 +1,17 @@
 var searchData=
 [
-  ['prefix_0',['prefix',['../d8/d39/class_auto_wave__class_1_1req3.html#a2b80640754f4c24029f0b97995b48687',1,'AutoWave_class.req3.prefix()'],['../d2/da9/class_auto_wave__class_1_1str3.html#a50876d5b9f2044b3de4bdb03c0b3e208',1,'AutoWave_class.str3.prefix()'],['../dc/d56/class_auto_wave__class_1_1str__and__req.html#a5202d72951cf4f91262cb385679d04bc',1,'AutoWave_class.str_and_req.prefix()'],['../dd/db8/class_auto_wave__class_1_1req__on__off.html#ad3c1bb655047185e7df7ec024390cb70',1,'AutoWave_class.req_on_off.prefix()'],['../d9/d7e/class_auto_wave__class_1_1dig__param3.html#aaf7163a98f4f842e19efa8c0501d82ca',1,'AutoWave_class.dig_param3.prefix()'],['../d4/d73/class_auto_wave__class_1_1str__param3.html#a9516e5e32158e88edaecb1690af7e93e',1,'AutoWave_class.str_param3.prefix()'],['../de/d30/class_auto_wave__class_1_1storage.html#a14c003f213756933a8faef8b56d992c0',1,'AutoWave_class.storage.prefix()'],['../d2/d23/class_auto_wave__class_1_1mode.html#a0960c1acf1df9178ed093365fbf103fc',1,'AutoWave_class.mode.prefix()'],['../d0/df9/class_auto_wave__class_1_1trig__gen.html#a03a33cec16bce4be479e658accbb4544',1,'AutoWave_class.trig_gen.prefix()'],['../d5/d5b/class_auto_wave__class_1_1set__voltage.html#a870a399a1d3a4e5cafd919657b99b574',1,'AutoWave_class.set_voltage.prefix()'],['../dc/d00/class_auto_wave__class_1_1file.html#a412570ad010acb13bd50d5b0501c2f37',1,'AutoWave_class.file.prefix()'],['../db/dce/class_auto_wave__class_1_1status.html#a738deda97b3b6e65576384170f617f9a',1,'AutoWave_class.status.prefix()']]],
-  ['protocol_1',['protocol',['../de/d30/class_auto_wave__class_1_1storage.html#aef06060f408612b57cf8d602975cb722',1,'AutoWave_class::storage']]]
+  ['read_5fin1_5fstatus_0',['read_in1_status',['../db/dce/class_auto_wave__class_1_1status.html#ace72ae0e6328304c5d6493cf6c52933a',1,'AutoWave_class::status']]],
+  ['read_5fin2_5fstatus_1',['read_in2_status',['../db/dce/class_auto_wave__class_1_1status.html#a796e72add295c3a45fd557187956e0cb',1,'AutoWave_class::status']]],
+  ['read_5fmac_2',['read_mac',['../db/dce/class_auto_wave__class_1_1status.html#a7f69dd3e50c5ec0739a6abe46bf5d16a',1,'AutoWave_class::status']]],
+  ['read_5fout1_5fstatus_3',['read_out1_status',['../db/dce/class_auto_wave__class_1_1status.html#a46de901c7037080e26e82b663b249495',1,'AutoWave_class::status']]],
+  ['read_5fout2_5fstatus_4',['read_out2_status',['../db/dce/class_auto_wave__class_1_1status.html#af29a10fd8b4f54d50974269d0de04072',1,'AutoWave_class::status']]],
+  ['read_5fout3_5fstatus_5',['read_out3_status',['../db/dce/class_auto_wave__class_1_1status.html#ab31bc24060d1349a147a78d87ad5cd55',1,'AutoWave_class::status']]],
+  ['read_5fout4_5fstatus_6',['read_out4_status',['../db/dce/class_auto_wave__class_1_1status.html#a130479aad170d813cc361eb35da998b3',1,'AutoWave_class::status']]],
+  ['read_5ftest_5fstatus_7',['read_test_status',['../db/dce/class_auto_wave__class_1_1status.html#a4cb07f780ab306e86d0f4691e04d1d1c',1,'AutoWave_class::status']]],
+  ['reboot_8',['reboot',['../de/d30/class_auto_wave__class_1_1storage.html#a9249f7b666587c9f8ef19eccb56cf1fa',1,'AutoWave_class::storage']]],
+  ['rec_9',['rec',['../d2/d23/class_auto_wave__class_1_1mode.html#a009c98dcb5a1abee73e889cff9f4b8c8',1,'AutoWave_class::mode']]],
+  ['req_5fdate_10',['req_date',['../de/d30/class_auto_wave__class_1_1storage.html#aeefbb484703f6a975082374685fbe2b2',1,'AutoWave_class::storage']]],
+  ['res_5fname_11',['res_name',['../d2/de8/class_auto_wave__class_1_1com__interface.html#a06a73522e2055272b074537dad216e89',1,'AutoWave_class::com_interface']]],
+  ['reset_12',['reset',['../de/d30/class_auto_wave__class_1_1storage.html#ac9c5f0f40a67d21d737285ec84a89c15',1,'AutoWave_class::storage']]],
+  ['rm_13',['rm',['../d2/de8/class_auto_wave__class_1_1com__interface.html#a8e729f62e5ea1f4c87e9081fb55aa72f',1,'AutoWave_class::com_interface']]]
 ];

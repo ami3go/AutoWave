@@ -2,7 +2,6 @@ var annotated_dup =
 [
     [ "AutoWave_class", "d5/df8/namespace_auto_wave__class.html", [
       [ "com_interface", "d2/de8/class_auto_wave__class_1_1com__interface.html", "d2/de8/class_auto_wave__class_1_1com__interface" ],
-      [ "dig_param", "d9/de7/class_auto_wave__class_1_1dig__param.html", "d9/de7/class_auto_wave__class_1_1dig__param" ],
       [ "dig_param3", "d9/d7e/class_auto_wave__class_1_1dig__param3.html", "d9/d7e/class_auto_wave__class_1_1dig__param3" ],
       [ "file", "dc/d00/class_auto_wave__class_1_1file.html", "dc/d00/class_auto_wave__class_1_1file" ],
       [ "mode", "d2/d23/class_auto_wave__class_1_1mode.html", "d2/d23/class_auto_wave__class_1_1mode" ],
@@ -12,7 +11,6 @@ var annotated_dup =
       [ "status", "db/dce/class_auto_wave__class_1_1status.html", "db/dce/class_auto_wave__class_1_1status" ],
       [ "storage", "de/d30/class_auto_wave__class_1_1storage.html", "de/d30/class_auto_wave__class_1_1storage" ],
       [ "str3", "d2/da9/class_auto_wave__class_1_1str3.html", "d2/da9/class_auto_wave__class_1_1str3" ],
-      [ "str_and_req", "dc/d56/class_auto_wave__class_1_1str__and__req.html", "dc/d56/class_auto_wave__class_1_1str__and__req" ],
       [ "str_param3", "d4/d73/class_auto_wave__class_1_1str__param3.html", "d4/d73/class_auto_wave__class_1_1str__param3" ],
       [ "trig_gen", "d0/df9/class_auto_wave__class_1_1trig__gen.html", "d0/df9/class_auto_wave__class_1_1trig__gen" ]
     ] ],

@@ -1,7 +1,6 @@
 var hierarchy =
 [
     [ "AutoWave_class.com_interface", "d2/de8/class_auto_wave__class_1_1com__interface.html", null ],
-    [ "AutoWave_class.dig_param", "d9/de7/class_auto_wave__class_1_1dig__param.html", null ],
     [ "AutoWave_class.dig_param3", "d9/d7e/class_auto_wave__class_1_1dig__param3.html", null ],
     [ "Exception", null, [
       [ "Timer_class.TimerError", "dd/da6/class_timer__class_1_1_timer_error.html", null ]
@@ -15,7 +14,6 @@ var hierarchy =
     [ "AutoWave_class.status", "db/dce/class_auto_wave__class_1_1status.html", null ],
     [ "AutoWave_class.storage", "de/d30/class_auto_wave__class_1_1storage.html", null ],
     [ "AutoWave_class.str3", "d2/da9/class_auto_wave__class_1_1str3.html", null ],
-    [ "AutoWave_class.str_and_req", "dc/d56/class_auto_wave__class_1_1str__and__req.html", null ],
     [ "AutoWave_class.str_param3", "d4/d73/class_auto_wave__class_1_1str__param3.html", null ],
     [ "Timer_class.Timer", "dd/d0a/class_timer__class_1_1_timer.html", null ],
     [ "AutoWave_class.trig_gen", "d0/df9/class_auto_wave__class_1_1trig__gen.html", null ]

@@ -52,7 +52,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"db/dce/class_auto_wave__class_1_1status.html#a796e72add295c3a45fd557187956e0cb"
+"dd/db8/class_auto_wave__class_1_1req__on__off.html#aef0b12272b6aa3b637d11ddf10a645de"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
