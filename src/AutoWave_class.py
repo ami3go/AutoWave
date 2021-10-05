@@ -105,10 +105,8 @@ class com_interface:
         print("Connected to: ", self.inst.query(self.cmd.idn.req()))
         delay()
         self.inst.query(self.cmd.echo.on.str())
-        # self.inst.query("*ECHO:ON")
         delay()
         self.inst.query(self.cmd.protocol.on.str())
-        # self.inst.query("*PRCL:ON")
         delay()
         # move cmd.mode.gen.str() for stable work
         # in manual it should be at "file_run"
