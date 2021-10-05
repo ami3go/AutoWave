@@ -44,27 +44,26 @@ def range_check(val, min, max, val_name):
         val = min
     return val
 
-def str2bytearray(txt):
+def str2dec_array(txt):
     """
     Converting string to decimal array.
 
     :param txt: text sting input
-    :return: byte array of input string
+    :return: decimal array
     """
-    # cmd = []  # array for formatted command
-    # for item in txt:
-    #     cmd.append(ord(item))
-    return bytearray(txt, "utf-8")
+    cmd = []  # array for formatted command
+    for item in txt:
+        cmd.append(ord(item))
+    return cmd
 
-
-def bytearray2check_sum(b_array):
+def dec_array2check_sum(dec_array):
     """
     Calculate a check sum for decimal array
 
-    :param b_array: binary array
+    :param dec_array: binary array
     :return: calclulated check summ according to documentation
     """
-    check_sum = sum(b_array) & 0x00FF
+    check_sum = sum(dec_array) & 0x00FF
     if check_sum <= 0x20:
         check_sum += 0x20
     return check_sum
@@ -77,9 +76,8 @@ def str2check_sum(txt):
     :type txt: str
     :return: Check sum. If (sum & 0x00FF) less then 0x20. Return will be Sum + 0x20
     """
-    # array = str2dec_array(txt)
-    # return dec_array2check_sum(array)
-    return bytearray2check_sum(bytearray(txt, "utf-8"))
+    array = str2dec_array(txt)
+    return dec_array2check_sum(array)
 
 
 class com_interface:
@@ -162,11 +160,10 @@ class com_interface:
         :type txt_cmd: str
         :return: None
         """
-        cmd = bytearray(txt_cmd, "utf-8")
-        c_sum = bytearray2check_sum(cmd)
-        cmd.insert(0, 0x2)  # insertion of STX=0x02 to a first place
-        cmd.append(0x3)  # termination message with ETX=0x03
-        cmd.append(c_sum)  # adding check sum at the end
+        cmd = str2dec_array(txt_cmd)
+        cmd.insert(0, 2)  # insertion of STX=0x02 to a first place
+        cmd.append(3)  # termination message with ETX=0x03
+        cmd.append(str2check_sum(txt_cmd))  # adding check sum at the end
         # print(f"protocol cmd: {cmd}")
         # print(bytes(cmd))
         self.inst.write_raw(bytes(cmd))
@@ -193,8 +190,6 @@ class com_interface:
                 # print("read_raw:",return_raw )
                 # check return line
                 if len(return_raw) == 1:
-                    # error code is replied in a single byte digit
-                    # codes and meaning form manual:
                     if return_raw == b'\x19':
                         raise Exception("Device: BUSY")
                     if return_raw == b'\x16':
@@ -202,12 +197,14 @@ class com_interface:
                     if return_raw == b'\x15':
                         raise Exception("Device: Negative ACKnowledge")
                 if p_check is True:
-                    # checking start, end, checksum termination
-                    check_sum = bytearray2check_sum(return_raw[1:-2])
+                    # TBD: require to add check sum check
+                    check_sum = dec_array2check_sum(return_raw[1:-2])
                     if (return_raw[0] == 0x02) and (return_raw[-2] == 0x03) and (check_sum == return_raw[-1]):
-                        #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
-                        #  x02-start | TRIG:GEN 1 | x03-stop| x9b-check sum
-                        #  print("p_check:", return_raw)
+                        # #  typical val =  b'\x02TRIG:GEN 1\x03\x9b'
+                        # #  x02 - start symbol
+                        # #  x03 - stop symbol
+                        # #  x9b - check sum
+                        # print("p_check:", return_raw)
                         return_raw = return_raw[1:-2]
                         return_str = return_raw.decode("utf-8")
                         if err_check is True:
@@ -217,6 +214,7 @@ class com_interface:
 
                     else:
                         raise Exception("Error in start(0x02)/end(0x03) terminator")
+
 
                 return return_raw.decode("utf-8")
 
