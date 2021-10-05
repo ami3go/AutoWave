@@ -400,16 +400,16 @@ class req_on_off(req3):
         self.off = str3(self.prefix + "OFF")
 
 
-class dig_param:
-    def __init__(self):
-        self.cmd = None  # this value to be inherited for high order class
-        self.max = None  # this value to be inherited for high order class
-        self.min = None  # this value to be inherited for high order class
-
-    def val(self, count=0):
-        count = range_check(count, self.min, self.max, "MAX count")
-        txt = f'{self.cmd} {count}'
-        return txt
+# class dig_param:
+#     def __init__(self):
+#         self.cmd = None  # this value to be inherited for high order class
+#         self.max = None  # this value to be inherited for high order class
+#         self.min = None  # this value to be inherited for high order class
+#
+#     def val(self, count=0):
+#         count = range_check(count, self.min, self.max, "MAX count")
+#         txt = f'{self.cmd} {count}'
+#         return txt
 
 
 class dig_param3:
