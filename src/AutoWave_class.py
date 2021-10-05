@@ -101,11 +101,14 @@ class com_interface:
         self.inst.timeout = 2000  # timeout in ms
         # the commands below are not crash safe
         # in case of something will get wrong init() will crash
-        print("Connected to: ", self.inst.query("*IDN?"))
+        # print("Connected to: ", self.inst.query("*IDN?"))
+        print("Connected to: ", self.inst.query(self.cmd.idn.req()))
         delay()
-        self.inst.query("*ECHO:ON")
+        self.inst.query(self.cmd.echo.on.str())
+        # self.inst.query("*ECHO:ON")
         delay()
-        self.inst.query("*PRCL:ON")
+        self.inst.query(self.cmd.protocol.on.str())
+        # self.inst.query("*PRCL:ON")
         delay()
         # move cmd.mode.gen.str() for stable work
         # in manual it should be at "file_run"
@@ -378,16 +381,16 @@ class str3:
         return self.cmd
 
 
-class str_and_req:
-    def __init__(self, prefix):
-        self.prefix = prefix
-        self.cmd = self.prefix
-
-    def str(self, ):
-        return self.cmd
-
-    def req(self):
-        return self.cmd + "?"
+# class str_and_req:
+#     def __init__(self, prefix):
+#         self.prefix = prefix
+#         self.cmd = self.prefix
+#
+#     def str(self, ):
+#         return self.cmd
+#
+#     def req(self):
+#         return self.cmd + "?"
 
 
 class req_on_off(req3):
