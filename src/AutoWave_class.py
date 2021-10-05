@@ -254,12 +254,20 @@ class com_interface:
 
 
 
-    def get_test_time(self, file_name, echo="on"):
-        # Ask for duration, channels, events, trigger and master channel of a test file
-        # typical response
-        # CKLF Ford ES-XW7T-1A278-AC - CI210 -.dsg:31.000000, 1, 1, 3, 0, 0;'
+    def get_test_time(self, file_name, echo=True):
+        """
+        Ask for duration, channels, events, trigger and master channel of a test file.
+        Typical response: "CKLF Ford ES-XW7T-1A278-AC - CI210 -.dsg:31.000000, 1, 1, 3, 0, 0;"
         # Protocol is not working for this command
         # check the start and end termination leads to en error
+
+        :param file_name: Name of file located on AutoWave device
+        :type file_name: str
+        :param echo: Enable output in terminal
+        :type echo: bool
+        :return:
+        """
+
         txt = self.pquery(self.cmd.file.check_details.path(file_name), False, True)
         print("file:", txt)
         if txt != None:
@@ -267,7 +275,7 @@ class com_interface:
             txt = txt[1]  # select only digits array
             txt = txt.split(",")  # separate digits
             time_in_sec = float(txt[0])  # selec first digit
-            if echo == "on":
+            if echo == True:
                 print(f"Test Duration: {datetime.timedelta(seconds=round(time_in_sec))} , "
                       f"File:{file_name}, Channel:{txt[1]}, "
                       f"Events:{txt[2]}")
