@@ -218,12 +218,22 @@ class com_interface:
 
 
     def close(self):
-        self.ser.close()
-        self.ser = None
+        """
+        Close the VISA connection
 
-    def run_test_file(self, file_name, echo="on"):
-        # to do:  no/off echo mode
+        :return: None
+        """
+        self.inst.close()
 
+    def run_test_file(self, file_name):
+        """
+        Run a test file, start generate a test signal form file
+        Note: File should be uploaded to device first. After that you may run it form script.
+        Use EM test PC software to uploaded test to device.
+
+        :param file_name: File name on Autowave device
+        :return: None
+        """
         txt = self.pquery(self.cmd.file.get_dir_download.str(), 1)
         self.download_dir = txt.replace("DIR DOWD:","")
         self.download_dir = self.download_dir + "/"
