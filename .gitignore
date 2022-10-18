@@ -746,3 +746,5 @@ venv/Lib/site-packages/pip/_vendor/chardet/euckrprober.py
 >>>>>>> 0346cc4c5c1e444f568fc888675428c6dd540fb1
 *.iml
 *.xml
+*.iml
+*.xml
