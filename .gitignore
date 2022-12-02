@@ -748,3 +748,5 @@ venv/Lib/site-packages/pip/_vendor/chardet/euckrprober.py
 *.xml
 *.iml
 *.xml
+.idea/AutoWave.iml
+.idea/misc.xml
