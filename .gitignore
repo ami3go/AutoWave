@@ -14,6 +14,7 @@ src/__pycache__/AutoWave_class.cpython-39.pyc
 src/__pycache__/Timer_class.cpython-39.pyc
 <<<<<<< HEAD
 *.pyc
+<<<<<<< Updated upstream
 =======
 venv/Lib/site-packages/_distutils_hack/__init__.py
 venv/Lib/site-packages/_distutils_hack/override.py
@@ -750,3 +751,6 @@ venv/Lib/site-packages/pip/_vendor/chardet/euckrprober.py
 *.xml
 .idea/AutoWave.iml
 .idea/misc.xml
+=======
+*.pyc
+>>>>>>> Stashed changes
