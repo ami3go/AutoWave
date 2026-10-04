@@ -14,11 +14,15 @@ from autowave.protocol import (
     parse_reply,
 )
 
-_valid_payloads = st.lists(
-    st.integers(min_value=0x20, max_value=0xFF),
-    min_size=1,
-    max_size=256,
-).map(bytes).filter(lambda payload: not payload.startswith(b"*"))
+_valid_payloads = (
+    st.lists(
+        st.integers(min_value=0x20, max_value=0xFF),
+        min_size=1,
+        max_size=256,
+    )
+    .map(bytes)
+    .filter(lambda payload: not payload.startswith(b"*"))
+)
 
 
 @pytest.mark.property
