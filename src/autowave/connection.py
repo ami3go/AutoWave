@@ -326,6 +326,24 @@ class AutoWaveConnection:
                 self._session.close()
             raise
 
+    def set_echo_enabled(self, enabled: bool) -> str:
+        """Set AutoWave command echo without changing framed-protocol state."""
+
+        if not isinstance(enabled, bool):
+            raise AutoWaveValidationError(f"enabled must be bool, got {type(enabled).__name__}")
+        state = "ON" if enabled else "OFF"
+        return self.control_transaction(f"*ECHO:{state}")
+
+    def set_protocol_enabled(self, enabled: bool) -> str:
+        """Change vendor protocol mode and keep cached readiness consistent."""
+
+        if not isinstance(enabled, bool):
+            raise AutoWaveValidationError(f"enabled must be bool, got {type(enabled).__name__}")
+        state = "ON" if enabled else "OFF"
+        response = self.control_transaction(f"*PRCL:{state}")
+        self._protocol_ready = enabled
+        return response
+
     def control_write(self, command: str, *, timeout_s: float | None = None) -> None:
         """Send one unframed star command without assuming a response."""
 
