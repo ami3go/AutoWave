@@ -328,6 +328,17 @@ class AutoWaveConnection:
                 self._session.close()
             raise
 
+    def control_write(self, command: str, *, timeout_s: float | None = None) -> None:
+        """Send one unframed star command without assuming a response."""
+
+        self._require_connected()
+        self._validate_control_command(command)
+        try:
+            self.client.write(command, timeout_s=timeout_s)
+        except TransportError:
+            self._clear_protocol_state()
+            raise
+
     def control_transaction(
         self,
         command: str,
