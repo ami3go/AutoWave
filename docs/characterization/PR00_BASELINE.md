@@ -130,7 +130,7 @@ failure and malformed framing do not authorize replay of side-effecting operatio
 | LEG-015 | discovery depends on the text "AutoWave" appearing in the VISA resource name | explicit resource first; bounded IDN-based discovery optional |
 | LEG-016 | constructor/status path emits diagnostic `print()` output | replace with structured diagnostics or silence |
 | LEG-017 | `pquery(err_check=True)` searches response text for `:ERR` instead of typed protocol/device status | replace with explicit response semantics |
-| LEG-018 | `disconnect()` name hides the fact that `*GTL` stops a running test | document side effect; provide clearer new API |
+| LEG-018 | `disconnect()` name hides the fact that `*GTL` stops a running test | document side effect; provide clearer new API |\n| LEG-019 | `set_dc_offset()` accepts negative input, then the nested VOFS builder clamps it to 0 | preserve the intended signed offset range with one authoritative typed validator |
 
 ## 6. Compatibility policy
 
@@ -168,7 +168,7 @@ The characterization suite verifies:
 - write-without-read VSET/VOFS behavior;
 - current initialization sequence;
 - exception masking;
-- silent range clamping.
+- silent range clamping, including the second-stage VOFS negative-value clamp.
 
 These tests must stay separated under `tests/characterization/` so later target-behavior tests
 are not confused with intentional snapshots of legacy defects.
