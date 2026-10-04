@@ -24,4 +24,3 @@ coverage.xml
 # IDE/editor state
 .idea/
 *.iml
-*.xml
