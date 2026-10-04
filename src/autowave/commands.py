@@ -7,8 +7,6 @@ cannot accidentally inject a second instrument operation.
 from __future__ import annotations
 
 import math
-from numbers import Real
-
 from autowave.errors import AutoWaveValidationError
 from autowave.models import DirectoryKind, GeneratorMode, TriggerMode
 
@@ -63,13 +61,13 @@ def _channel(channel: int, *, maximum: int = MAX_OUTPUT_CHANNEL) -> int:
 
 
 def _number(
-    value: Real,
+    value: int | float,
     *,
     name: str,
     minimum: float,
     maximum: float,
 ) -> float:
-    if isinstance(value, bool) or not isinstance(value, Real):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise AutoWaveValidationError(f"{name} must be a real number, got {value!r}")
     numeric = float(value)
     if not math.isfinite(numeric):
@@ -99,7 +97,7 @@ def set_trigger_mode(mode: TriggerMode) -> str:
     return f"TRIG:GEN {int(mode)}"
 
 
-def set_voltage(channel: int, voltage: Real) -> str:
+def set_voltage(channel: int, voltage: int | float) -> str:
     output = _channel(channel)
     value = _number(
         voltage,
@@ -110,7 +108,7 @@ def set_voltage(channel: int, voltage: Real) -> str:
     return f"VSET:OUT{output} {_format_number(value)}"
 
 
-def set_offset(channel: int, offset: Real) -> str:
+def set_offset(channel: int, offset: int | float) -> str:
     output = _channel(channel)
     value = _number(
         offset,
