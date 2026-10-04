@@ -75,9 +75,7 @@ def _validate_nonnegative_finite(value: float, name: str) -> None:
         raise AutoWaveValidationError(f"{name} must be a finite non-negative number, got {value!r}")
     numeric = float(value)
     if not math.isfinite(numeric) or numeric < 0:
-        raise AutoWaveValidationError(
-            f"{name} must be a finite non-negative number, got {value!r}"
-        )
+        raise AutoWaveValidationError(f"{name} must be a finite non-negative number, got {value!r}")
 
 
 def _optional_field(fields: list[str], index: int) -> str | None:
