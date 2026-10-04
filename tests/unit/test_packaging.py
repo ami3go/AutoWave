@@ -11,7 +11,7 @@ import autowave
 
 def test_package_version_matches_repository_version() -> None:
     repo_version = (Path(__file__).resolve().parents[2] / "VERSION").read_text().strip()
-    assert autowave.__version__ == repo_version == "0.1.0"
+    assert autowave.__version__ == repo_version == "0.2.0"
 
 
 def test_distribution_metadata_matches_package_version() -> None:
@@ -19,7 +19,7 @@ def test_distribution_metadata_matches_package_version() -> None:
 
 
 def test_scpi_driver_core_is_exact_expected_version() -> None:
-    assert metadata.version("scpi-driver-core") == "0.1.0.dev6"
+    assert metadata.version("scpi-driver-core") == "0.2.0.dev6"
 
 
 def test_core_dependency_metadata_pins_reviewed_commit() -> None:
