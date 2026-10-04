@@ -262,17 +262,20 @@ def test_directory_queries_keep_upgrade_and_log_distinct() -> None:
 
 def test_directory_and_file_metadata_queries_send_exact_commands() -> None:
     list_cmd = encode_command("DIR? /home/guest/DowFiles")
+    exists_cmd = encode_command("CKFL? /home/guest/DowFiles/a.dsg")
     details_cmd = encode_command("CKLF? a.dsg")
     duration_cmd = encode_command("CKFD? a.dsg")
     driver, _transport, pending = _driver(
         [
             (list_cmd, encode_command("DIR:/home/guest/DowFiles:a.dsg")),
+            (exists_cmd, encode_command("CKFL:1")),
             (details_cmd, encode_command("CKLF:details")),
             (duration_cmd, encode_command("CKFD:120")),
         ]
     )
 
     assert driver.list_directory("/home/guest/DowFiles") == "DIR:/home/guest/DowFiles:a.dsg"
+    assert driver.query_file_exists("/home/guest/DowFiles/a.dsg") == "CKFL:1"
     assert driver.query_file_details("a.dsg") == "CKLF:details"
     assert driver.query_file_duration("a.dsg") == "CKFD:120"
     assert not pending
