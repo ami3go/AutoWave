@@ -86,3 +86,11 @@ python_version = "3.10"
 packages = ["autowave"]
 strict = true
 warn_unused_configs = true
+
+[tool.coverage.run]
+branch = true
+source = ["autowave"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 90

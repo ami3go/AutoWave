@@ -1,4 +1,4 @@
-"""Packaging and compatibility smoke tests for PR01."""
+"""Packaging and compatibility smoke tests."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import autowave
 
 def test_package_version_matches_repository_version() -> None:
     repo_version = (Path(__file__).resolve().parents[2] / "VERSION").read_text().strip()
-    assert autowave.__version__ == repo_version == "0.1.0"
+    assert autowave.__version__ == repo_version == "0.2.0"
 
 
 def test_distribution_metadata_matches_package_version() -> None:
