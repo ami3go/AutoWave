@@ -6,7 +6,7 @@ from collections import deque
 from dataclasses import dataclass
 
 import pytest
-from scpi_driver_core.exceptions import TransportTimeoutError
+from scpi_driver_core.exceptions import ResponseParseError, TransportTimeoutError
 from scpi_driver_core.execution import RetryPolicy
 from scpi_driver_core.transport import MockTransport, ReplayPolicy, TransportState
 
@@ -76,6 +76,16 @@ def _scripted_mock(
 
 def _write_messages(transport: MockTransport) -> list[bytes]:
     return [op.data for op in transport.operations if op.kind == "write"]
+
+
+def test_identity_parser_wraps_core_csv_failure(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail_parse_csv(_response: str) -> list[str]:
+        raise ResponseParseError("malformed CSV", raw=_response)
+
+    monkeypatch.setattr("autowave.connection.parse_csv", fail_parse_csv)
+
+    with pytest.raises(AutoWaveIdentityError, match="malformed AutoWave"):
+        parse_autowave_identity("bad")
 
 
 def test_parse_full_vendor_identity() -> None:
