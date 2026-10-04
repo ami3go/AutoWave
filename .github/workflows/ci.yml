@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - "migration/**"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests / Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install project and development dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Run hardware-free tests
+        run: python -m pytest -m "not hardware"
+
+  quality:
+    name: Quality and package artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install project and development dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Ruff lint
+        run: ruff check .
+
+      - name: Ruff formatting
+        run: ruff format --check .
+
+      - name: Mypy
+        run: mypy src/autowave
+
+      - name: Build wheel and sdist
+        run: python -m build
+
+      - name: Verify artifact set
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          wheels = list(Path("dist").glob("*.whl"))
+          sdists = list(Path("dist").glob("*.tar.gz"))
+          assert len(wheels) == 1, wheels
+          assert len(sdists) == 1, sdists
+          print("wheel:", wheels[0])
+          print("sdist:", sdists[0])
+          PY
+
+      - name: Clean-install wheel
+        run: |
+          python -m venv /tmp/autowave-wheel
+          /tmp/autowave-wheel/bin/python -m pip install --upgrade pip
+          /tmp/autowave-wheel/bin/python -m pip install dist/*.whl
+          /tmp/autowave-wheel/bin/python - <<'PY'
+          from importlib import metadata
+          import autowave
+          import AutoWave_class
+          import Timer_class
+
+          assert autowave.__version__ == "0.1.0"
+          assert metadata.version("autowave-driver") == "0.1.0"
+          assert metadata.version("scpi-driver-core") == "0.1.0.dev6"
+          assert hasattr(AutoWave_class, "com_interface")
+          assert hasattr(Timer_class, "Timer")
+          PY
+
+      - name: Clean-install sdist
+        run: |
+          python -m venv /tmp/autowave-sdist
+          /tmp/autowave-sdist/bin/python -m pip install --upgrade pip
+          /tmp/autowave-sdist/bin/python -m pip install dist/*.tar.gz
+          /tmp/autowave-sdist/bin/python - <<'PY'
+          from importlib import metadata
+          import autowave
+          import AutoWave_class
+          import Timer_class
+
+          assert autowave.__version__ == "0.1.0"
+          assert metadata.version("autowave-driver") == "0.1.0"
+          assert metadata.version("scpi-driver-core") == "0.1.0.dev6"
+          assert hasattr(AutoWave_class, "com_interface")
+          assert hasattr(Timer_class, "Timer")
+          PY
