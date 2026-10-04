@@ -129,8 +129,9 @@ A timeout without explicit safe replay leaves protocol readiness and cached iden
 
 ## Control-plane transactions
 
-`control_transaction()` is for commands beginning with `*`. It does not frame them.
-Retry is subject to the same explicit `ReplayPolicy.SAFE` rule.
+`control_write()` sends an unframed `*` command without assuming a response and never retries it.
+`control_transaction()` sends an unframed `*` command that is expected to return text. Retry is
+subject to the same explicit `ReplayPolicy.SAFE` rule.
 
 This low-level method does not decide that `*GTL`, reset, or any other control command is safe.
 That semantic classification belongs to concrete driver methods.
