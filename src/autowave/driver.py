@@ -188,6 +188,11 @@ class AutoWave(AbstractContextManager["AutoWave"]):
     def list_directory(self, path: str) -> str:
         return self._query_text(commands.list_directory(path))
 
+    def query_file_exists(self, path: str) -> str:
+        """Return the raw documented CKFL? response for a file path."""
+
+        return self._query_text(commands.file_exists_query(path))
+
     def query_file_details(self, file_name: str) -> str:
         return self._query_text(commands.file_details_query(file_name))
 
