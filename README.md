@@ -4,9 +4,9 @@ Python driver for the EM Test AutoWave generator.
 
 > Migration status: the repository is being migrated to the shared
 > [`scpi-driver-core`](https://github.com/ami3go/scpi-driver-core) transport/session
-> infrastructure. Version 0.3.0 adds the reviewed scpi-driver-core connection/session layer, bounded GPIB/VISA I/O, bootstrap, discovery, BUSY handling, and safe-query recovery. High-level AutoWave workflows remain in later phases.
+> infrastructure. Version 0.4.0 adds the typed public AutoWave driver API with validated commands, strict voltage/offset/channel checks, typed status results, and explicit safe-query versus side-effect replay policy. High-level multi-command workflows remain in PR05.
 
-Current repository version: **0.3.0**.
+Current repository version: **0.4.0**.
 
 ## Installation
 
@@ -69,3 +69,20 @@ AutoWave bootstrap, bounded framed transactions, vendor BUSY handling, discovery
 safe-query recovery without restoring physical/application state.
 
 See [`docs/CONNECTION.md`](docs/CONNECTION.md) for architecture and safety behavior.
+
+## Public driver API
+
+The preferred API is now exported directly from `autowave`:
+
+```python
+from autowave import AutoWave, GeneratorMode, TriggerMode
+
+with AutoWave.visa("GPIB0::5::INSTR") as aw:
+    aw.set_generator_mode(GeneratorMode.GENERATOR)
+    aw.set_voltage(13.5, channel=1)
+    aw.set_offset(-5.0, channel=1)
+    status = aw.query_test_status()
+```
+
+See [`docs/DRIVER_API.md`](docs/DRIVER_API.md) for command semantics, validation,
+status types, file/directory queries, and replay-safety rules.

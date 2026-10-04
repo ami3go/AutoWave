@@ -2,6 +2,28 @@
 
 All notable project changes are recorded here.
 
+## 0.4.0 - 2026-10-04
+
+### Added
+
+- Typed public `AutoWave` driver API over the reviewed connection/session layer.
+- Explicit `GeneratorMode`, `TriggerMode`, `DirectoryKind`, and `TestStatus` models.
+- Validated command builders for mode, trigger, voltage, offset, file selection, directories, and status queries.
+- Strict numeric/channel validation with no silent clamping.
+- Installed input/output count enforcement when reported by `*IDN?`.
+- Typed `STAT? TEST` parsing and scalar input/output status parsing.
+- Safe file/directory metadata query methods and separate UPGD/LOGD directory access.
+- Public driver API documentation and package exports.
+
+### Changed
+
+- Valid negative VOFS values are preserved instead of being silently clamped to zero.
+- Side-effecting public setters always use `ReplayPolicy.NEVER`.
+- Read-only framed queries use explicit `ReplayPolicy.SAFE` with bounded retry by default.
+- Vendor `*GTL` is exposed as `go_to_local()` and remains a non-replayable side effect.
+- Reset is an unframed, non-replayable write followed by deterministic session close.
+- Protocol enable/disable now keeps cached protocol readiness synchronized.
+
 ## 0.3.0 - 2026-10-04
 
 ### Added

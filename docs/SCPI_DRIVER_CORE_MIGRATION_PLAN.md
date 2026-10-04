@@ -1,7 +1,7 @@
 # AutoWave migration plan to scpi-driver-core
 
 **Document version:** 1.1  
-**Current planning version:** `0.3.0`  
+**Current planning version:** `0.4.0`  
 **Repository baseline:** `ami3go/AutoWave` main  
 **Initial repository version introduced with this plan:** `0.0.1`  
 **Target shared core:** `ami3go/scpi-driver-core`  
@@ -589,6 +589,11 @@ Review gate:
 - ensure no setter/query is incorrectly classified for retry.
 
 Merge before PR 05.
+
+**PR04 deliverables:** typed `AutoWave` public driver, explicit command builders and enums,
+strict value/channel validation, installed-channel enforcement, typed test-status parsing,
+safe query versus side-effect replay classification, file/directory/status query surface,
+public package exports, and driver API documentation.
 
 ### PR 05 — high-level AutoWave workflows
 
