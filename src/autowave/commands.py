@@ -49,6 +49,8 @@ def _text_argument(value: str, name: str) -> str:
         raise AutoWaveValidationError(f"{name} must not be empty")
     if "\r" in value or "\n" in value:
         raise AutoWaveValidationError(f"{name} must not contain CR or LF")
+    if ";" in value:
+        raise AutoWaveValidationError(f"{name} must not contain a command separator ';'")
     return value
 
 
