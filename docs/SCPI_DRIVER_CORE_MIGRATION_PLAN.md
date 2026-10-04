@@ -1,7 +1,7 @@
 # AutoWave migration plan to scpi-driver-core
 
 **Document version:** 1.1  
-**Current planning version:** `0.1.0`  
+**Current planning version:** `0.2.0`  
 **Repository baseline:** `ami3go/AutoWave` main  
 **Initial repository version introduced with this plan:** `0.0.1`  
 **Target shared core:** `ami3go/scpi-driver-core`  
@@ -485,6 +485,10 @@ Review gate:
 - no generic-core modification unless separately approved.
 
 Merge before PR 03.
+
+**PR02 deliverables:** pure byte-oriented framing/checksum/reply parser, typed AutoWave errors,
+manual checksum vectors, deterministic unit/property coverage, explicit status classification,
+and no transport/session imports in the protocol layer.
 
 ### PR 03 — scpi-driver-core transport/session integration
 
