@@ -464,7 +464,7 @@ class AutoWaveConnection:
         busy_policy: BusyPolicy,
         timeout_s: float | None,
     ) -> AutoWaveReply:
-        start = self._now()
+        busy_started_at: float | None = None
         attempt = 0
 
         while True:
@@ -483,7 +483,9 @@ class AutoWaveConnection:
             if reply.kind is not AutoWaveReplyKind.BUSY:
                 return raise_for_status(reply)
 
-            elapsed = self._now() - start
+            if busy_started_at is None:
+                busy_started_at = self._now()
+            elapsed = self._now() - busy_started_at
             if (
                 attempt >= busy_policy.attempts
                 or elapsed + self._minimum_interval_s > busy_policy.max_elapsed_s
