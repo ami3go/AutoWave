@@ -191,9 +191,6 @@ def parse_reply(
         )
 
     payload = data[1:-2]
-    if not payload:
-        raise AutoWaveResponseError("decorated AutoWave response payload is empty", raw=data)
-
     control = next((value for value in payload if value < 0x20), None)
     if control is not None:
         raise AutoWaveResponseError(
