@@ -66,9 +66,19 @@ def test_non_ascii_string_command_is_rejected_without_guessing_vendor_code_page(
         encode_command("DISP café")
 
 
+def test_empty_raw_command_payload_is_rejected() -> None:
+    with pytest.raises(AutoWaveValidationError, match="must not be empty"):
+        encode_frame(b"")
+
+
 def test_control_byte_in_raw_command_is_rejected() -> None:
     with pytest.raises(AutoWaveValidationError, match="control byte"):
         encode_frame(b"ABC\x1fDEF")
+
+
+def test_non_string_command_is_rejected() -> None:
+    with pytest.raises(AutoWaveValidationError, match="command must be str"):
+        encode_command(b"STAT? TEST")  # type: ignore[arg-type]
 
 
 def test_command_payload_limit_is_enforced() -> None:
@@ -119,6 +129,14 @@ def test_decorated_reply_round_trip() -> None:
 )
 def test_malformed_decorated_replies_are_rejected(raw: bytes) -> None:
     with pytest.raises(AutoWaveResponseError):
+        parse_reply(raw)
+
+
+def test_control_byte_in_decorated_response_is_rejected() -> None:
+    payload = b"A\x1fB"
+    raw = bytes((STX,)) + payload + bytes((ETX, calculate_checksum(payload)))
+
+    with pytest.raises(AutoWaveResponseError, match="control byte"):
         parse_reply(raw)
 
 
