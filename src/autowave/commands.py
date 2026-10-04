@@ -7,6 +7,7 @@ cannot accidentally inject a second instrument operation.
 from __future__ import annotations
 
 import math
+
 from autowave.errors import AutoWaveValidationError
 from autowave.models import DirectoryKind, GeneratorMode, TriggerMode
 
