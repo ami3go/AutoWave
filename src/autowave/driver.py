@@ -6,7 +6,6 @@ High-level multi-command workflows such as running a test file remain in PR05.
 
 from __future__ import annotations
 
-from contextlib import AbstractContextManager
 from types import TracebackType
 from typing import Any, Final
 
@@ -30,7 +29,7 @@ __all__ = ["AutoWave", "DEFAULT_SAFE_QUERY_RETRY_POLICY"]
 DEFAULT_SAFE_QUERY_RETRY_POLICY: Final = RetryPolicy.constant(attempts=3, delay_s=0.25)
 
 
-class AutoWave(AbstractContextManager["AutoWave"]):
+class AutoWave:
     """Production-facing AutoWave driver built on the reviewed connection layer."""
 
     def __init__(
@@ -53,7 +52,7 @@ class AutoWave(AbstractContextManager["AutoWave"]):
         resource_manager: Any | None = None,
         visa_library: str = "",
         safe_query_retry_policy: RetryPolicy | None = DEFAULT_SAFE_QUERY_RETRY_POLICY,
-    ) -> "AutoWave":
+    ) -> AutoWave:
         return cls(
             AutoWaveConnection.visa(
                 resource_name,
@@ -88,7 +87,7 @@ class AutoWave(AbstractContextManager["AutoWave"]):
     def close(self) -> None:
         self._connection.close()
 
-    def __enter__(self) -> "AutoWave":
+    def __enter__(self) -> AutoWave:
         self.open()
         return self
 
