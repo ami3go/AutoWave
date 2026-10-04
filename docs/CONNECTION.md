@@ -111,7 +111,7 @@ BUSY loop.
 Generic retry is rejected unless the caller explicitly supplies:
 
 ```python
-replay_policy=ReplayPolicy.SAFE
+replay_policy = ReplayPolicy.SAFE
 ```
 
 and a core `RetryPolicy`.
