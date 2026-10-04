@@ -170,8 +170,12 @@ PR03 validates the layer through:
 - bounded BUSY tests;
 - pacing tests with an injected monotonic clock;
 - discovery with an injected fake VISA manager;
-- the real `VisaTransport -> PyVISA -> PyVISA-sim` stack;
+- the real `VisaTransport` class with an injected byte-preserving VISA resource manager;
 - Python 3.10-3.13 CI;
 - strict typing and branch coverage.
 
-Real END/EOI and vendor VISA/GPIB behavior remain HIL evidence.
+PyVISA-sim is intentionally not used for the AutoWave bootstrap path because its dialogue
+model requires a terminator/eom representation that does not faithfully model AutoWave's
+no-CR/LF GPIB END/EOI traffic. Adding a fake newline would test a different protocol.
+
+Real END/EOI and vendor VISA/GPIB behavior therefore remain HIL evidence.
