@@ -11,7 +11,7 @@ import autowave
 
 def test_package_version_matches_repository_version() -> None:
     repo_version = (Path(__file__).resolve().parents[2] / "VERSION").read_text().strip()
-    assert autowave.__version__ == repo_version == "0.3.0"
+    assert autowave.__version__ == repo_version == "0.4.0"
 
 
 def test_distribution_metadata_matches_package_version() -> None:
@@ -31,6 +31,12 @@ def test_core_dependency_metadata_pins_reviewed_commit() -> None:
 
 def test_py_typed_marker_is_packaged() -> None:
     assert files("autowave").joinpath("py.typed").is_file()
+
+
+def test_public_driver_is_exported() -> None:
+    assert autowave.AutoWave.__name__ == "AutoWave"
+    assert autowave.GeneratorMode.GENERATOR.value == "GEN"
+    assert autowave.TriggerMode.MANUAL_START == 1
 
 
 def test_legacy_top_level_modules_remain_importable() -> None:
