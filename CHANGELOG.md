@@ -2,6 +2,24 @@
 
 All notable project changes are recorded here.
 
+## 0.1.0 - 2026-10-04
+
+### Added
+
+- Modern `pyproject.toml` packaging for the `autowave-driver` distribution.
+- New typed `autowave` package namespace with an explicit package version.
+- Exact runtime dependency pin to the reviewed `scpi-driver-core` commit `d850f88a78ddfbfa08b667c0be6cbb0bb4a01541`.
+- Packaging smoke tests for distribution metadata, the core dependency, and legacy import compatibility.
+- Packaging/development documentation.
+- CI gates for Python 3.10-3.13 hardware-free tests, Ruff, formatting, mypy, wheel/sdist builds, and clean artifact installation.
+
+### Changed
+
+- Legacy `AutoWave_class` and `Timer_class` remain installable as top-level compatibility modules without runtime refactoring.
+- Development dependencies are centralized in the `dev` project extra.
+- Pytest configuration is centralized in `pyproject.toml` with per-test and session timeout protection.
+- Python build/cache/IDE ignore rules are normalized.
+
 ## 0.0.3 - 2026-10-04
 
 ### Added
