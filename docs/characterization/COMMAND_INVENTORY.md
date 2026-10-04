@@ -35,7 +35,7 @@ Legend:
 | Mode gen+rec | `MOD GNRC` | `cmd.mode.gen_and_rec` | busy-only | migrate only if compatibility requires |
 | Source segment file | `SOUR SEGM <file>` | `cmd.file.select` | busy-only | migrate |
 | Set output voltage | `VSET:OUT1..4 <Voltage>` | `set_dc_voltage()` | busy-only | migrate; typed validation and consume reply |
-| Set output offset | `VOFS:OUT1..4 <Voltage>` | `set_dc_offset()` | busy-only | migrate; typed validation and consume reply |
+| Set output offset | `VOFS:OUT1..4 <Voltage>` | `set_dc_offset()` | busy-only | migrate; remove contradictory second-stage 0..60 clamp, typed validation, consume reply |
 | Trigger generator | `TRIG:GEN <0..7>` | `cmd.trigGen.*` | busy-only | migrate |
 | Start | `STAR` | `run_test_file()` | busy-only | migrate; send once |
 | Stop | `STOP` | command tree only | busy-only | expose explicitly |
@@ -103,7 +103,7 @@ Actual file payload transfer is not part of the command channel.
 | UPGD accessor resolves to `DIR? LOGD` | separate `DIR? UPGD` and `DIR? LOGD` |
 | `REB` sent via unframed `send()` after protocol enable | framed command transaction |
 | `*GTL` sent through framed `psend()` by `got_to_local()` | always unframed |
-| VSET/VOFS use write-only `psend()` | framed transaction that consumes reply |
+| VSET/VOFS use write-only `psend()` | framed transaction that consumes reply |\n| negative VOFS accepted by `set_dc_offset()` is clamped to 0 by the nested builder | one authoritative signed-offset validator; no silent alteration |
 | `STAR` sent twice by `run_test_file()` | one `STAR` |
 
 ## 7. Scope rule
