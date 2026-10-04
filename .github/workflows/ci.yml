@@ -70,11 +70,32 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import tarfile
+          import zipfile
 
           wheels = list(Path("dist").glob("*.whl"))
           sdists = list(Path("dist").glob("*.tar.gz"))
           assert len(wheels) == 1, wheels
           assert len(sdists) == 1, sdists
+
+          with zipfile.ZipFile(wheels[0]) as archive:
+              wheel_names = set(archive.namelist())
+          required_wheel = {
+              "AutoWave_class.py",
+              "Timer_class.py",
+              "autowave/__init__.py",
+              "autowave/_version.py",
+              "autowave/py.typed",
+          }
+          assert required_wheel <= wheel_names, required_wheel - wheel_names
+          assert not any(name.startswith("Doxygen/") or name.startswith(".idea/") for name in wheel_names)
+
+          with tarfile.open(sdists[0], "r:gz") as archive:
+              sdist_names = set(archive.getnames())
+          assert any(name.endswith("/VERSION") for name in sdist_names)
+          assert any(name.endswith("/CHANGELOG.md") for name in sdist_names)
+          assert any(name.endswith("/docs/PACKAGING.md") for name in sdist_names)
+
           print("wheel:", wheels[0])
           print("sdist:", sdists[0])
           PY
@@ -86,6 +107,7 @@ jobs:
           /tmp/autowave-wheel/bin/python -m pip install dist/*.whl
           /tmp/autowave-wheel/bin/python - <<'PY'
           from importlib import metadata
+          from importlib.resources import files
           import autowave
           import AutoWave_class
           import Timer_class
@@ -93,6 +115,7 @@ jobs:
           assert autowave.__version__ == "0.1.0"
           assert metadata.version("autowave-driver") == "0.1.0"
           assert metadata.version("scpi-driver-core") == "0.1.0.dev6"
+          assert files("autowave").joinpath("py.typed").is_file()
           assert hasattr(AutoWave_class, "com_interface")
           assert hasattr(Timer_class, "Timer")
           PY
