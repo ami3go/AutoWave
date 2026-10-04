@@ -350,13 +350,17 @@ class AutoWaveConnection:
             raise AutoWaveValidationError(
                 "retrying a control transaction requires replay_policy=ReplayPolicy.SAFE"
             )
-        return self.client.query(
-            command,
-            timeout_s=timeout_s,
-            replay_policy=replay_policy,
-            retry_policy=retry_policy,
-            before_retry=self.recover if retry_policy is not None else None,
-        )
+        try:
+            return self.client.query(
+                command,
+                timeout_s=timeout_s,
+                replay_policy=replay_policy,
+                retry_policy=retry_policy,
+                before_retry=self.recover if retry_policy is not None else None,
+            )
+        except TransportError:
+            self._clear_protocol_state()
+            raise
 
     def transact_framed(
         self,
@@ -414,6 +418,10 @@ class AutoWaveConnection:
     ) -> None:
         self.close()
 
+    def _clear_protocol_state(self) -> None:
+        self._protocol_ready = False
+        self._identity = None
+
     def _bootstrap(self) -> AutoWaveIdentity:
         self._protocol_ready = False
         identity = parse_autowave_identity(self._control_once("*IDN?"))
@@ -461,12 +469,16 @@ class AutoWaveConnection:
 
         while True:
             attempt += 1
-            raw = self.client.transact_bytes(
-                frame,
-                _response_request(),
-                timeout_s=timeout_s,
-                replay_policy=replay_policy,
-            )
+            try:
+                raw = self.client.transact_bytes(
+                    frame,
+                    _response_request(),
+                    timeout_s=timeout_s,
+                    replay_policy=replay_policy,
+                )
+            except TransportError:
+                self._clear_protocol_state()
+                raise
             reply = parse_reply(raw)
             if reply.kind is not AutoWaveReplyKind.BUSY:
                 return raise_for_status(reply)
