@@ -162,9 +162,7 @@ def test_second_open_is_idempotent_after_successful_bootstrap() -> None:
 
 
 def test_invalid_identity_closes_transport_and_clears_protocol_state() -> None:
-    transport, pending = _scripted_mock(
-        [(b"*IDN?", b"OTHER,Instrument,0,1.0")]
-    )
+    transport, pending = _scripted_mock([(b"*IDN?", b"OTHER,Instrument,0,1.0")])
     connection = AutoWaveConnection.from_transport(transport, minimum_interval_s=0.0)
 
     with pytest.raises(AutoWaveIdentityError):
