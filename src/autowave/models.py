@@ -39,7 +39,11 @@ class BusyPolicy:
     max_elapsed_s: float = 5.0
 
     def __post_init__(self) -> None:
-        if isinstance(self.attempts, bool) or not isinstance(self.attempts, int) or self.attempts < 1:
+        if (
+            isinstance(self.attempts, bool)
+            or not isinstance(self.attempts, int)
+            or self.attempts < 1
+        ):
             raise AutoWaveValidationError(
                 f"BUSY attempts must be a positive integer, got {self.attempts!r}"
             )
