@@ -450,6 +450,35 @@ def test_failed_recovery_bootstrap_closes_reopened_transport() -> None:
     assert not pending
 
 
+def test_control_write_sends_unframed_command_without_reading_reply() -> None:
+    transport, pending = _scripted_mock(_bootstrap_steps())
+    connection = AutoWaveConnection.from_transport(transport, minimum_interval_s=0.0)
+    connection.open()
+
+    before_reads = len([op for op in transport.operations if op.kind == "read"])
+    connection.control_write("*GTL")
+    after_reads = len([op for op in transport.operations if op.kind == "read"])
+
+    assert _write_messages(transport)[-1] == b"*GTL"
+    assert after_reads == before_reads
+    assert not pending
+
+
+def test_control_write_transport_failure_invalidates_cached_state() -> None:
+    transport, pending = _scripted_mock(_bootstrap_steps())
+    connection = AutoWaveConnection.from_transport(transport, minimum_interval_s=0.0)
+    connection.open()
+    transport.fail_next_write(TransportTimeoutError("write timed out"), fault=True)
+
+    with pytest.raises(TransportTimeoutError):
+        connection.control_write("*GTL")
+
+    assert transport.state is TransportState.FAULTED
+    assert connection.identity is None
+    assert connection.protocol_ready is False
+    assert not pending
+
+
 def test_control_transaction_requires_star_command_and_connection() -> None:
     transport = MockTransport()
     connection = AutoWaveConnection.from_transport(transport, minimum_interval_s=0.0)
