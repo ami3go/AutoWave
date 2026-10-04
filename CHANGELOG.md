@@ -2,6 +2,28 @@
 
 All notable project changes are recorded here.
 
+## 0.3.0 - 2026-10-04
+
+### Added
+
+- `AutoWaveConnection` layer on top of `ScpiSession`, `ScpiClient`, and byte transports.
+- Exact unframed bootstrap sequence: `*IDN?`, `*ECHO:ON`, `*PRCL:ON`.
+- Vendor-specific normalized identity model preserving the raw identification response.
+- Explicit GPIB `VisaTransport` factory with bounded backend-defined-message reads.
+- Bounded vendor BUSY exact-message re-query policy.
+- Explicit safe-query transport recovery that reopens the core session and re-runs AutoWave bootstrap only.
+- Typed connection-state, identity, and discovery errors.
+- Opt-in bounded VISA discovery that never silently selects among multiple AutoWave units.
+- MockTransport tests for exact byte traffic, pacing, replay policy, fault invalidation, BUSY, and recovery.
+- Injected ResourceManager discovery tests and PyVISA-sim integration coverage.
+- Connection/session architecture documentation.
+
+### Changed
+
+- Cached protocol-ready and identity state are cleared immediately after uncertain transport failures.
+- Communication recovery does not restore generator mode, voltage, offset, trigger, file selection, or test execution state.
+- Ordinary close remains transport-only and never sends STOP, BREA, GTL, reset, reboot, or protocol-disable commands.
+
 ## 0.2.0 - 2026-10-04
 
 ### Added
