@@ -13,7 +13,7 @@ from typing import Any, Final
 from scpi_driver_core.execution import RetryPolicy
 from scpi_driver_core.transport import ReplayPolicy
 
-from autowave import commands
+import autowave.commands as commands
 from autowave.connection import AutoWaveConnection
 from autowave.errors import AutoWaveResponseError, AutoWaveValidationError
 from autowave.models import (
