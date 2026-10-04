@@ -148,6 +148,19 @@ def test_open_bootstraps_exact_unframed_sequence_and_identity() -> None:
     assert not pending
 
 
+def test_open_bootstraps_an_already_open_transport_without_reopening() -> None:
+    transport, pending = _scripted_mock(_bootstrap_steps())
+    connection = AutoWaveConnection.from_transport(transport, minimum_interval_s=0.0)
+    transport.open()
+
+    identity = connection.open()
+
+    assert identity.model == "AutoWave"
+    assert transport.open_count == 1
+    assert connection.protocol_ready is True
+    assert not pending
+
+
 def test_second_open_is_idempotent_after_successful_bootstrap() -> None:
     transport, pending = _scripted_mock(_bootstrap_steps())
     connection = AutoWaveConnection.from_transport(transport, minimum_interval_s=0.0)
@@ -450,6 +463,37 @@ def test_failed_recovery_bootstrap_closes_reopened_transport() -> None:
     assert not pending
 
 
+def test_control_transaction_returns_unframed_text_response() -> None:
+    transport, pending = _scripted_mock(_bootstrap_steps() + [(b"*IDN?", _IDN)])
+    connection = AutoWaveConnection.from_transport(transport, minimum_interval_s=0.0)
+    connection.open()
+
+    response = connection.control_transaction(
+        "*IDN?",
+        replay_policy=ReplayPolicy.SAFE,
+    )
+
+    assert response == _IDN.decode("ascii")
+    assert _write_messages(transport)[-1] == b"*IDN?"
+    assert not pending
+
+
+def test_control_transaction_transport_failure_invalidates_cached_state() -> None:
+    transport, pending = _scripted_mock(
+        _bootstrap_steps() + [(b"*IDN?", TransportTimeoutError("read timed out"))]
+    )
+    connection = AutoWaveConnection.from_transport(transport, minimum_interval_s=0.0)
+    connection.open()
+
+    with pytest.raises(TransportTimeoutError):
+        connection.control_transaction("*IDN?", replay_policy=ReplayPolicy.SAFE)
+
+    assert transport.state is TransportState.FAULTED
+    assert connection.identity is None
+    assert connection.protocol_ready is False
+    assert not pending
+
+
 def test_control_write_sends_unframed_command_without_reading_reply() -> None:
     transport, pending = _scripted_mock(_bootstrap_steps())
     connection = AutoWaveConnection.from_transport(transport, minimum_interval_s=0.0)
@@ -476,6 +520,19 @@ def test_control_write_transport_failure_invalidates_cached_state() -> None:
     assert transport.state is TransportState.FAULTED
     assert connection.identity is None
     assert connection.protocol_ready is False
+    assert not pending
+
+
+def test_non_string_control_command_is_rejected_before_transport_io() -> None:
+    transport, pending = _scripted_mock(_bootstrap_steps())
+    connection = AutoWaveConnection.from_transport(transport, minimum_interval_s=0.0)
+    connection.open()
+    before = list(_write_messages(transport))
+
+    with pytest.raises(AutoWaveValidationError, match="must be str"):
+        connection.control_write(b"*GTL")  # type: ignore[arg-type]
+
+    assert _write_messages(transport) == before
     assert not pending
 
 
@@ -537,3 +594,12 @@ def test_require_single_discovery_result_never_silently_chooses() -> None:
         require_single_autowave([])
     with pytest.raises(AutoWaveDiscoveryError, match="multiple"):
         require_single_autowave([one, two])
+
+
+@pytest.mark.parametrize("minimum_interval", [-0.1, float("inf"), True])
+def test_connection_rejects_invalid_minimum_interval(minimum_interval: float) -> None:
+    with pytest.raises(AutoWaveValidationError):
+        AutoWaveConnection.from_transport(
+            MockTransport(),
+            minimum_interval_s=minimum_interval,
+        )
