@@ -72,9 +72,7 @@ def _validate_positive_finite(value: float, name: str) -> None:
 
 def _validate_nonnegative_finite(value: float, name: str) -> None:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise AutoWaveValidationError(
-            f"{name} must be a finite non-negative number, got {value!r}"
-        )
+        raise AutoWaveValidationError(f"{name} must be a finite non-negative number, got {value!r}")
     numeric = float(value)
     if not math.isfinite(numeric) or numeric < 0:
         raise AutoWaveValidationError(
@@ -442,9 +440,7 @@ class AutoWaveConnection:
                 f"control command must be str, got {type(command).__name__}"
             )
         if not command.startswith("*"):
-            raise AutoWaveValidationError(
-                "AutoWave control-plane transactions must begin with '*'"
-            )
+            raise AutoWaveValidationError("AutoWave control-plane transactions must begin with '*'")
 
     def _require_connected(self) -> None:
         if not self._session.is_connected:
@@ -523,7 +519,9 @@ def discover_autowave_resources(
 
     _validate_positive_finite(timeout_s, "timeout_s")
     names = (
-        tuple(resource_manager.list_resources()) if resource_names is None else tuple(resource_names)
+        tuple(resource_manager.list_resources())
+        if resource_names is None
+        else tuple(resource_names)
     )
     found: list[DiscoveredAutoWave] = []
 
