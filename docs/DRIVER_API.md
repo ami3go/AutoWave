@@ -167,9 +167,8 @@ Typed parsers reject:
 
 ## Command injection protection
 
-String arguments used for file/path commands reject CR and LF. One public
-method call therefore cannot inject a second physical command through a line
-break.
+String arguments used for file/path commands reject CR, LF, and semicolon command
+separators. One public method call therefore cannot inject a second physical command.
 
 ## Legacy compatibility
 
