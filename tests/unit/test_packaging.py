@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from importlib import metadata
+from importlib.resources import files
 from pathlib import Path
 
 import autowave
@@ -26,6 +27,10 @@ def test_core_dependency_metadata_pins_reviewed_commit() -> None:
     core_requirements = [item for item in requirements if item.startswith("scpi-driver-core")]
     assert len(core_requirements) == 1
     assert "d850f88a78ddfbfa08b667c0be6cbb0bb4a01541" in core_requirements[0]
+
+
+def test_py_typed_marker_is_packaged() -> None:
+    assert files("autowave").joinpath("py.typed").is_file()
 
 
 def test_legacy_top_level_modules_remain_importable() -> None:
