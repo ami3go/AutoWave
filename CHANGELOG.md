@@ -15,7 +15,7 @@ All notable project changes are recorded here.
 - Typed connection-state, identity, and discovery errors.
 - Opt-in bounded VISA discovery that never silently selects among multiple AutoWave units.
 - MockTransport tests for exact byte traffic, pacing, replay policy, fault invalidation, BUSY, and recovery.
-- Injected ResourceManager discovery tests and PyVISA-sim integration coverage.
+- Injected ResourceManager discovery tests and real `VisaTransport` integration using a byte-preserving VISA resource double.
 - Connection/session architecture documentation.
 
 ### Changed
