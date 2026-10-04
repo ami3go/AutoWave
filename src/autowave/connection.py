@@ -245,7 +245,7 @@ class AutoWaveConnection:
         visa_library: str = "",
         sleep: Sleep = time.sleep,
         now: Clock = time.monotonic,
-    ) -> "AutoWaveConnection":
+    ) -> AutoWaveConnection:
         """Build the initial production GPIB/VISA AutoWave connection."""
 
         _validate_gpib_resource(resource_name)
