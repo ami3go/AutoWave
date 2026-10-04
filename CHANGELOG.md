@@ -14,7 +14,7 @@ All notable project changes are recorded here.
 
 ### Changed
 
-- Added explicit dispositions for additional legacy protocol defects found during characterization: malformed echo/protocol query strings, unframed REB after protocol enable, framed `*GTL`, and write-without-read VSET/VOFS operations.
+- Added explicit dispositions for additional legacy protocol defects found during characterization: malformed echo/protocol query strings, unframed REB after protocol enable, framed `*GTL`, write-without-read VSET/VOFS operations, and the contradictory VOFS negative-value clamp.
 - PR00 remains behavior-preserving: no production runtime source has been modified.
 
 ## 0.0.2 - 2026-10-04
