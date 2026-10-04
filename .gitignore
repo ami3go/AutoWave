@@ -1,11 +1,27 @@
-*.pyc
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+
+# Virtual environments
+.venv/
+venv/
+
+# Build and package artifacts
+build/
+dist/
+*.egg-info/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# IDE/editor state
+.idea/
 *.iml
 *.xml
-*.idea
-src/__pycache__/AutoWave_class.cpython-39.pyc
-src/__pycache__/AutoWave_class.cpython-39.pyc
-.idea/misc.xml
-src/__pycache__/AutoWave_class.cpython-39.pyc
-src/__pycache__/Timer_class.cpython-39.pyc
-*.pyc
-*.pyc
