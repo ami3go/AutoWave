@@ -84,7 +84,9 @@ def _validate_positive_limit(value: int, name: str) -> None:
 
 def _validate_command_payload(payload: bytes, *, maximum_size: int) -> None:
     if not isinstance(payload, bytes):
-        raise AutoWaveValidationError(f"command payload must be bytes, got {type(payload).__name__}")
+        raise AutoWaveValidationError(
+            f"command payload must be bytes, got {type(payload).__name__}"
+        )
     _validate_positive_limit(maximum_size, "maximum_size")
     if not payload:
         raise AutoWaveValidationError("command payload must not be empty")
@@ -93,9 +95,7 @@ def _validate_command_payload(payload: bytes, *, maximum_size: int) -> None:
             f"command payload of {len(payload)} bytes exceeds maximum_size {maximum_size}"
         )
     if payload.startswith(b"*"):
-        raise AutoWaveValidationError(
-            "commands beginning with '*' are always unframed on AutoWave"
-        )
+        raise AutoWaveValidationError("commands beginning with '*' are always unframed on AutoWave")
     control = next((value for value in payload if value < 0x20), None)
     if control is not None:
         raise AutoWaveValidationError(
@@ -107,7 +107,9 @@ def calculate_checksum(payload: bytes) -> int:
     """Return the documented AutoWave one-byte checksum for payload bytes."""
 
     if not isinstance(payload, bytes):
-        raise AutoWaveValidationError(f"checksum payload must be bytes, got {type(payload).__name__}")
+        raise AutoWaveValidationError(
+            f"checksum payload must be bytes, got {type(payload).__name__}"
+        )
     value = sum(payload) & 0xFF
     if value <= 0x20:
         value += 0x20
