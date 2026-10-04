@@ -7,7 +7,7 @@ from autowave.connection import (
     parse_autowave_identity,
     require_single_autowave,
 )
-from autowave.driver import AutoWave, DEFAULT_SAFE_QUERY_RETRY_POLICY
+from autowave.driver import DEFAULT_SAFE_QUERY_RETRY_POLICY, AutoWave
 from autowave.errors import (
     AutoWaveBusyError,
     AutoWaveChecksumError,
