@@ -544,7 +544,7 @@ Merge before PR 04.
 **PR03 deliverables:** `AutoWaveConnection` over `ScpiSession`/`ScpiClient`, explicit
 GPIB `VisaTransport` construction, bounded backend-message reads, 250 ms pacing, verified
 bootstrap, identity normalization, bounded BUSY exact-message re-query, safe-query recovery,
-opt-in discovery, MockTransport coverage, and PyVISA-sim integration.
+opt-in discovery, MockTransport coverage, and real `VisaTransport` integration with an injected VISA resource; PyVISA-sim is documented as unable to faithfully model the no-terminator GPIB END/EOI profile.
 
 ### PR 04 — command model and public driver API
 
