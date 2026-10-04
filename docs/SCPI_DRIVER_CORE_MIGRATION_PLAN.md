@@ -1,7 +1,7 @@
 # AutoWave migration plan to scpi-driver-core
 
 **Document version:** 1.1  
-**Current planning version:** `0.2.0`  
+**Current planning version:** `0.3.0`  
 **Repository baseline:** `ami3go/AutoWave` main  
 **Initial repository version introduced with this plan:** `0.0.1`  
 **Target shared core:** `ami3go/scpi-driver-core`  
@@ -540,6 +540,11 @@ Review gate:
 - verify reconnect only happens under explicit approved policy.
 
 Merge before PR 04.
+
+**PR03 deliverables:** `AutoWaveConnection` over `ScpiSession`/`ScpiClient`, explicit
+GPIB `VisaTransport` construction, bounded backend-message reads, 250 ms pacing, verified
+bootstrap, identity normalization, bounded BUSY exact-message re-query, safe-query recovery,
+opt-in discovery, MockTransport coverage, and PyVISA-sim integration.
 
 ### PR 04 — command model and public driver API
 
