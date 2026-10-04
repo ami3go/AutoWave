@@ -4,7 +4,7 @@
 **Repository baseline:** `ami3go/AutoWave` main  
 **Initial repository version introduced with this plan:** `0.0.1`  
 **Target shared core:** `ami3go/scpi-driver-core`  
-**Core baseline observed when this plan was written:** `0.1.0.dev6`
+**Core baseline observed when this plan was written:** `0.1.0.dev6` at `d850f88a78ddfbfa08b667c0be6cbb0bb4a01541`
 
 ## 1. Purpose
 
