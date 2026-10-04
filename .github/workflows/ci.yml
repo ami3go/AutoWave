@@ -14,6 +14,8 @@ jobs:
   tests:
     name: Tests / Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    env:
+      HYPOTHESIS_PROFILE: ci
     strategy:
       fail-fast: false
       matrix:
@@ -62,6 +64,11 @@ jobs:
 
       - name: Mypy
         run: mypy src/autowave
+
+      - name: Coverage gate
+        env:
+          HYPOTHESIS_PROFILE: ci
+        run: python -m pytest -m "not hardware" --cov=autowave --cov-report=term-missing
 
       - name: Build wheel and sdist
         run: python -m build
