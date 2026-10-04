@@ -53,9 +53,7 @@ def test_legacy_status_labels_duplicate_second_input(legacy_module, capsys) -> N
     assert status[5][0] == "IN 1:"
 
 
-def test_legacy_get_test_time_falls_back_to_360_seconds_on_no_reply(
-    legacy_module, capsys
-) -> None:
+def test_legacy_get_test_time_falls_back_to_360_seconds_on_no_reply(legacy_module, capsys) -> None:
     interface = _interface_without_init(legacy_module)
     capsys.readouterr()
     interface.pquery = lambda *_args, **_kwargs: None
@@ -100,9 +98,7 @@ def test_legacy_typo_go_to_local_method_frames_star_command(
 
     interface.got_to_local()
 
-    assert writes == [
-        bytes([0x02]) + b"*GTL" + bytes([0x03, legacy_module.str2check_sum("*GTL")])
-    ]
+    assert writes == [bytes([0x02]) + b"*GTL" + bytes([0x03, legacy_module.str2check_sum("*GTL")])]
 
 
 @pytest.mark.parametrize(
