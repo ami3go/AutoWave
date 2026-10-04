@@ -220,9 +220,7 @@ def test_scalar_status_queries_reject_bad_response(
     response: str,
 ) -> None:
     command = "STAT? OUT1" if method == "query_output_status" else "STAT? IN1"
-    driver, _transport, pending = _driver(
-        [(encode_command(command), encode_command(response))]
-    )
+    driver, _transport, pending = _driver([(encode_command(command), encode_command(response))])
 
     with pytest.raises(AutoWaveResponseError):
         getattr(driver, method)(1)
