@@ -2,6 +2,21 @@
 
 All notable project changes are recorded here.
 
+## 0.0.3 - 2026-10-04
+
+### Added
+
+- PR00 executable characterization suite for the legacy checksum, frame construction, command tree, retry/error behavior, initialization, and high-level workflows.
+- Compatibility/public-surface baseline and explicit legacy-defect inventory.
+- Command-by-command side-effect and replay classification.
+- HIL verification backlog separating software evidence from physical GPIB/VISA evidence.
+- Hardware-free characterization CI on Python 3.10 through 3.13.
+
+### Changed
+
+- Added explicit dispositions for additional legacy protocol defects found during characterization: malformed echo/protocol query strings, unframed REB after protocol enable, framed `*GTL`, write-without-read VSET/VOFS operations, and the contradictory VOFS negative-value clamp.
+- PR00 remains behavior-preserving: no production runtime source has been modified.
+
 ## 0.0.2 - 2026-10-04
 
 ### Changed

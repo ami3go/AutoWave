@@ -1,7 +1,7 @@
 # AutoWave migration plan to scpi-driver-core
 
 **Document version:** 1.1  
-**Current planning version:** `0.0.2`  
+**Current planning version:** `0.0.3`  
 **Repository baseline:** `ami3go/AutoWave` main  
 **Initial repository version introduced with this plan:** `0.0.1`  
 **Target shared core:** `ami3go/scpi-driver-core`  
@@ -374,6 +374,8 @@ Review gate:
 - confirm no unresolved P1 protocol/architecture question remains before PR01.
 
 Merge before PR 01.
+
+**PR00 deliverables:** [legacy baseline](characterization/PR00_BASELINE.md), [command/replay inventory](characterization/COMMAND_INVENTORY.md), and [HIL backlog](characterization/HIL_TODO.md).
 
 ### PR 01 — modern Python package and project structure
 
