@@ -1,7 +1,7 @@
 # AutoWave migration plan to scpi-driver-core
 
 **Document version:** 1.1  
-**Current planning version:** `0.0.3`  
+**Current planning version:** `0.1.0`  
 **Repository baseline:** `ami3go/AutoWave` main  
 **Initial repository version introduced with this plan:** `0.0.1`  
 **Target shared core:** `ami3go/scpi-driver-core`  
@@ -425,6 +425,10 @@ Review gate:
 - inspect runtime dependencies to ensure test tools are not runtime requirements.
 
 Merge before PR 02.
+
+**PR01 deliverables:** installable `autowave-driver` distribution, typed `autowave` namespace,
+legacy top-level compatibility modules, exact `scpi-driver-core` commit pin, package smoke
+tests, and CI that validates the hardware-free matrix plus clean wheel/sdist installation.
 
 ### PR 02 — AutoWave protocol codec and typed errors
 
