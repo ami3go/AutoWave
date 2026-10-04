@@ -363,7 +363,7 @@ class AutoWaveConnection:
                 timeout_s=timeout_s,
                 replay_policy=replay_policy,
                 retry_policy=retry_policy,
-                before_retry=self.recover if retry_policy is not None else None,
+                before_retry=self._recover_for_retry if retry_policy is not None else None,
             )
         except TransportError:
             self._clear_protocol_state()
@@ -410,8 +410,11 @@ class AutoWaveConnection:
             retry_on=(TransportError,),
             sleep=self._sleep,
             now=self._now,
-            before_retry=self.recover,
+            before_retry=self._recover_for_retry,
         )
+
+    def _recover_for_retry(self) -> None:
+        self.recover()
 
     def __enter__(self) -> AutoWaveConnection:
         self.open()
