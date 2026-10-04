@@ -33,7 +33,7 @@ from autowave.errors import (
     AutoWaveIdentityError,
     AutoWaveValidationError,
 )
-from autowave.models import AutoWaveIdentity, BusyPolicy, DEFAULT_BUSY_POLICY, DiscoveredAutoWave
+from autowave.models import DEFAULT_BUSY_POLICY, AutoWaveIdentity, BusyPolicy, DiscoveredAutoWave
 from autowave.protocol import (
     DEFAULT_MAX_COMMAND_PAYLOAD,
     DEFAULT_MAX_RESPONSE_SIZE,
@@ -213,7 +213,7 @@ class AutoWaveConnection:
         busy_policy: BusyPolicy = DEFAULT_BUSY_POLICY,
         sleep: Sleep = time.sleep,
         now: Clock = time.monotonic,
-    ) -> "AutoWaveConnection":
+    ) -> AutoWaveConnection:
         """Build an AutoWave session around any core byte transport."""
 
         client = _build_client(
@@ -406,7 +406,7 @@ class AutoWaveConnection:
             before_retry=self.recover,
         )
 
-    def __enter__(self) -> "AutoWaveConnection":
+    def __enter__(self) -> AutoWaveConnection:
         self.open()
         return self
 
