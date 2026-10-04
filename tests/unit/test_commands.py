@@ -69,8 +69,8 @@ def test_file_and_directory_commands() -> None:
     assert commands.file_duration_query("a.dsg") == "CKFD? a.dsg"
 
 
-@pytest.mark.parametrize("value", ["", "a\nb", "a\rb"])
-def test_text_arguments_reject_empty_or_line_breaks(value: str) -> None:
+@pytest.mark.parametrize("value", ["", "a\nb", "a\rb", "a.dsg;STAR"])
+def test_text_arguments_reject_empty_or_command_separators(value: str) -> None:
     with pytest.raises(AutoWaveValidationError):
         commands.select_file(value)
 
