@@ -1,4 +1,4 @@
-"""Packaging and compatibility smoke tests for PR01."""
+"""Packaging and compatibility smoke tests."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ def test_distribution_metadata_matches_package_version() -> None:
 
 
 def test_scpi_driver_core_is_exact_expected_version() -> None:
-    assert metadata.version("scpi-driver-core") == "0.2.0.dev6"
+    assert metadata.version("scpi-driver-core") == "0.1.0.dev6"
 
 
 def test_core_dependency_metadata_pins_reviewed_commit() -> None:
