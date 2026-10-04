@@ -249,6 +249,8 @@ class AutoWaveConnection:
         """Build the initial production GPIB/VISA AutoWave connection."""
 
         _validate_gpib_resource(resource_name)
+        _validate_positive_finite(timeout_s, "timeout_s")
+        _validate_nonnegative_finite(minimum_interval_s, "minimum_interval_s")
         transport = VisaTransport(
             resource_name,
             timeout_s=float(timeout_s),
@@ -324,6 +326,8 @@ class AutoWaveConnection:
         except BaseException:
             self._protocol_ready = False
             self._identity = None
+            with suppress(Exception):
+                self._session.close()
             raise
 
     def control_transaction(
@@ -453,9 +457,10 @@ class AutoWaveConnection:
         timeout_s: float | None,
     ) -> AutoWaveReply:
         start = self._now()
-        last_busy: AutoWaveReply | None = None
+        attempt = 0
 
-        for attempt in range(1, busy_policy.attempts + 1):
+        while True:
+            attempt += 1
             raw = self.client.transact_bytes(
                 frame,
                 _response_request(),
@@ -466,7 +471,6 @@ class AutoWaveConnection:
             if reply.kind is not AutoWaveReplyKind.BUSY:
                 return raise_for_status(reply)
 
-            last_busy = reply
             elapsed = self._now() - start
             if (
                 attempt >= busy_policy.attempts
@@ -478,13 +482,6 @@ class AutoWaveConnection:
                     attempts=attempt,
                     elapsed_s=elapsed,
                 )
-
-        raise AutoWaveBusyError(
-            "AutoWave BUSY policy exhausted unexpectedly",
-            raw=None if last_busy is None else last_busy.raw,
-            attempts=busy_policy.attempts,
-            elapsed_s=self._now() - start,
-        )
 
 
 def _validate_gpib_resource(resource_name: str) -> None:
