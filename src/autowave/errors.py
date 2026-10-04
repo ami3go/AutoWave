@@ -7,7 +7,12 @@ want to catch every device-driver error from this package.
 
 from __future__ import annotations
 
-from scpi_driver_core.exceptions import ConfigurationError, IdentityError, ProtocolError, ScpiDriverError
+from scpi_driver_core.exceptions import (
+    ConfigurationError,
+    IdentityError,
+    ProtocolError,
+    ScpiDriverError,
+)
 
 __all__ = [
     "AutoWaveBusyError",
