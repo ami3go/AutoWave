@@ -6,8 +6,8 @@ from collections import deque
 from dataclasses import dataclass
 
 import pytest
+from scpi_driver_core.exceptions import TransportTimeoutError
 from scpi_driver_core.execution import RetryPolicy
-from scpi_driver_core.exceptions import TransportError, TransportTimeoutError
 from scpi_driver_core.transport import MockTransport, ReplayPolicy, TransportState
 
 from autowave.connection import (
