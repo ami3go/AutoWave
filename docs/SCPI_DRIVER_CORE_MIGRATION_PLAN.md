@@ -179,6 +179,8 @@ Recommended pre-1.0 progression:
 
 ```text
 0.0.1  migration plan / version baseline
+0.0.2  pre-coding review findings resolved / verified protocol baseline
+0.0.3  PR00 baseline characterization and compatibility inventory
 0.1.0  packaging and public package skeleton
 0.2.0  AutoWave protocol codec and typed errors
 0.3.0  scpi-driver-core VISA/session integration
