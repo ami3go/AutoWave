@@ -1,6 +1,7 @@
 # AutoWave migration plan to scpi-driver-core
 
-**Document version:** 1.0  
+**Document version:** 1.1  
+**Current planning version:** `0.0.2`  
 **Repository baseline:** `ami3go/AutoWave` main  
 **Initial repository version introduced with this plan:** `0.0.1`  
 **Target shared core:** `ami3go/scpi-driver-core`  
@@ -21,6 +22,29 @@ and the device-specific single-byte responses such as BUSY, NOT READY, and NAK.
 The code agent executing this plan must work incrementally. Each feature or migration slice must be implemented, tested, reviewed, corrected, submitted through a pull request, and merged before dependent work proceeds.
 
 The migration is not considered complete merely because tests pass. Completion requires a final independent deep review, disposition of every finding, fixes for blocking findings, a full regression rerun, and hardware-in-the-loop evidence for behavior that simulation cannot establish.
+
+### 1.1 Resolved pre-coding findings
+
+The mandatory verified protocol/transport decisions are defined in [`AUTOWAVE_PROTOCOL_BASELINE.md`](AUTOWAVE_PROTOCOL_BASELINE.md). That document is part of this implementation contract.
+
+The pre-coding review findings are resolved as follows:
+
+- official source of truth: EM Test AutoWave Remote Manual V6.02.02, with explicit evidence precedence;
+- protocol bootstrap: power-up protocol OFF; `*` commands always unframed; bootstrap is `*IDN?` -> `*ECHO:ON` -> `*PRCL:ON`;
+- recovery: transport/session recovery must be followed by AutoWave bootstrap, but must not restore generator/output/test state;
+- timing: minimum 250 ms between commands; no artificial delay between write and read within one transaction; initial bounded timeout remains 2.0 s;
+- response boundary: GPIB uses bounded VISA backend-defined message/EOI semantics, with HIL verification required;
+- discovery: explicit VISA resource is preferred; optional discovery uses bounded unframed `*IDN?` and identity matching rather than resource-name substring matching;
+- health/identity: `*IDN?` remains valid after protocol enable because `*` commands are never framed; AutoWave-specific normalization handles the vendor `*IDN:` prefix;
+- BUSY: verified `0x19` permits bounded resend of the exact same message as vendor-defined polling; this is not generic transport retry;
+- NOTREADY/NAK/timeout: never trigger automatic replay of a side-effecting operation;
+- local control: public AutoWave local control uses vendor `*GTL`, which can stop a running test; VISA REN control is not a substitute;
+- destructive error status: `STAT? ERR` clears on read and must not be wired to automatic generic SCPI error-queue checking;
+- defensive bounds: 4096-byte command payload and 65536-byte response/message limits for the initial migration;
+- file payload transfer: actual file content is not transferred over GPIB command traffic; FTP/USB/control software is separate;
+- known legacy discrepancies, including duplicate `STAR`, `BREAK` versus documented `BREA`, duplicated IN1 labels, and overwritten LOGD/UPGD command storage, have explicit dispositions in the protocol baseline.
+
+No runtime migration phase may reopen these decisions casually. If HIL contradicts the baseline, stop the affected PR, record the evidence, update the baseline in a separately reviewed/versioned change, then continue.
 
 ## 2. Mandatory design boundaries
 
@@ -101,7 +125,7 @@ Never automatically replay operations such as:
 
 - `STAR`
 - `STOP`
-- `BREAK`
+- `BREA`
 - `TRIG:GEN ...`
 - output or voltage-setting commands;
 - file-selection or file-transfer commands;
@@ -110,6 +134,8 @@ Never automatically replay operations such as:
 - commands whose completion state is uncertain after a timeout.
 
 Queries may use retry only after they are explicitly classified as safe to replay.
+
+The only protocol-level resend exception is a verified one-byte BUSY (`0x19`) reply. The official protocol requires resending the exact previous message to obtain completion. This BUSY loop is bounded, paced, and separate from generic transport retry. NAK, NOTREADY, timeout, malformed response, or checksum failure must not enter the BUSY resend path.
 
 An uncertain timeout must never allow a late reply to be consumed as the response to a subsequent command. Reuse the core invalidation/recovery semantics rather than trying to drain or guess around an unknown stream state.
 
@@ -153,6 +179,8 @@ Recommended pre-1.0 progression:
 
 ```text
 0.0.1  migration plan / version baseline
+0.0.2  pre-coding review findings resolved / verified protocol baseline
+0.0.3  PR00 baseline characterization and compatibility inventory
 0.1.0  packaging and public package skeleton
 0.2.0  AutoWave protocol codec and typed errors
 0.3.0  scpi-driver-core VISA/session integration
@@ -320,27 +348,30 @@ Merge only when:
 Tasks:
 
 - inventory current repository structure;
-- record current AutoWave command set;
-- characterize checksum behavior;
-- document the STX/ETX framed protocol;
-- document BUSY/NOT READY/NAK responses;
-- capture the current initialization sequence;
-- capture the 250 ms command pacing requirement;
-- identify all current retry loops;
-- identify all commands with physical side effects;
+- build the compatibility and command inventories against `AUTOWAVE_PROTOCOL_BASELINE.md`;
+- freeze the verified STX/ETX/checksum rules into characterization vectors;
+- add vectors for ACK, NAK, NOTREADY, BUSY, and decorated responses;
+- characterize the legacy initialization sequence against the verified bootstrap sequence;
+- characterize the legacy timing/retry behavior without preserving unsafe retry semantics;
+- identify every command with physical side effects and assign its replay policy;
+- create the manual-to-legacy discrepancy table;
 - document existing defects separately from intended compatibility;
+- record explicit HIL TODOs for EOI/END behavior, checksum 0x20 edge behavior, firmware compatibility, `*PRCL:ON`, `MOD GEN`, and CKLF framing;
 - introduce package/test tooling needed for the next PR if it can be done without moving runtime behavior.
 
 Required tests:
 
-- characterization tests for checksum;
-- characterization tests for command construction;
-- regression test for any already-known deterministic defect that will later be fixed.
+- characterization tests for checksum, including manual vectors and the 0x20 boundary;
+- characterization tests for command construction and exact bytes;
+- characterization vectors for all four simple one-byte protocol replies;
+- regression tests for deterministic legacy defects that will later be fixed.
 
 Review gate:
 
-- confirm baseline describes the current driver rather than the desired driver;
-- confirm no behavior was accidentally changed.
+- confirm characterization describes the current driver separately from the desired target behavior;
+- confirm all deviations from the verified protocol baseline are recorded;
+- confirm no runtime behavior was accidentally changed;
+- confirm no unresolved P1 protocol/architecture question remains before PR01.
 
 Merge before PR 01.
 
@@ -434,6 +465,7 @@ Required tests:
 - bad checksum;
 - truncated frame;
 - oversized frame;
+- ACK;
 - BUSY;
 - NOT READY;
 - NAK;
@@ -457,15 +489,23 @@ Implement:
 - `VisaTransport`;
 - `ScpiClient`;
 - `ScpiSession`;
-- explicit codec/response-request configuration appropriate for AutoWave;
-- minimum command interval using core pacing;
-- bounded operation timeout;
+- unframed control-plane codec with no CR/LF terminator for GPIB message-based traffic;
+- bounded GPIB `BACKEND_DEFINED_MESSAGE` response requests;
+- 4096-byte command and 65536-byte response/message bounds;
+- minimum command interval of 0.250 s using core pacing;
+- initial bounded operation timeout of 2.0 s;
 - context-manager cleanup;
 - explicit connection/open/close state;
 - instrument identity validation;
-- deterministic recovery policy.
+- deterministic recovery policy;
+- AutoWave recovery callback that performs core recovery followed by `*IDN?`, `*ECHO:ON`, and `*PRCL:ON`;
+- explicit resource-address connection API plus optional bounded identity-based discovery.
 
 The AutoWave framed transaction should use byte operations such as `write_bytes`, `read_bytes`, or `transact_bytes` as appropriate. Do not force proprietary frames through ordinary newline-based SCPI text framing.
+
+A verified BUSY reply may trigger a bounded resend of the identical frame according to the protocol baseline. Transport timeout, NAK, NOTREADY, checksum error, and malformed response must never be converted into that resend path.
+
+For safe-query retry after a fault, the retry recovery callback must restore both transport state and AutoWave protocol bootstrap. Bare `ScpiSession.recover_if_faulted` is insufficient for framed commands.
 
 Remove direct runtime ownership of `pyvisa.ResourceManager()` from the driver.
 
@@ -501,7 +541,7 @@ Migrate at least:
 
 - identity;
 - reset;
-- local control;
+- vendor local control (`*GTL`) and its stop-test side effect;
 - echo/protocol enable;
 - generator mode;
 - voltage;
@@ -550,7 +590,7 @@ Migrate and test:
 - disconnect/go local;
 - reboot;
 - stop/break behavior;
-- any file transfer behavior currently supported.
+- file metadata/transfer-initialization behavior currently supported; actual file payload transfer remains out of GPIB scope.
 
 Replace fixed sleeps with:
 
@@ -562,8 +602,8 @@ Never convert an uncertain command timeout into an automatic replay for an opera
 
 Required scripted scenarios:
 
-- normal run;
-- BUSY then recovery path;
+- normal run with exactly one `STAR` command;
+- BUSY exact-message resend to completion within bounds;
 - NOT READY;
 - NAK;
 - malformed framed reply;
@@ -618,9 +658,13 @@ Merge before PR 07.
 
 HIL must verify at minimum:
 
-- real GPIB/VISA discovery/open;
-- correct `*IDN?`/identity path;
+- real GPIB/VISA explicit-resource open and optional discovery;
+- correct unframed `*IDN?`/identity normalization path before and after protocol enable;
 - actual STX/ETX/checksum frames;
+- checksum raw-0x20 boundary behavior;
+- exact `*PRCL:ON` syntax and reply;
+- exact `MOD GEN` syntax and reply;
+- CKLF framed-query behavior;
 - command pacing on the real instrument;
 - BUSY/NOT READY/NAK handling where reproducible;
 - END/EOI behavior;
