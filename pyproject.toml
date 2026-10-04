@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autowave-driver"
+dynamic = ["version"]
+description = "Python driver for EM Test AutoWave generators"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Alexandr Chasnyk" }]
+keywords = ["autowave", "em-test", "gpib", "ieee488", "instrumentation", "pyvisa", "test-automation"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+]
+dependencies = [
+  "scpi-driver-core[visa] @ git+https://github.com/ami3go/scpi-driver-core.git@d850f88a78ddfbfa08b667c0be6cbb0bb4a01541",
+]
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2",
+  "hypothesis>=6.168",
+  "mypy>=1.13",
+  "pytest>=8,<9",
+  "pytest-cov>=5",
+  "pytest-timeout>=2.4,!=2.5.0",
+  "pyvisa-sim>=0.7.1",
+  "ruff>=0.9",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+py-modules = ["AutoWave_class", "Timer_class"]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["autowave*"]
+
+[tool.setuptools.package-data]
+autowave = ["py.typed"]
+
+[tool.setuptools.dynamic]
+version = { attr = "autowave._version.__version__" }
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-q --strict-markers"
+testpaths = ["tests"]
+timeout = 30
+session_timeout = 600
+markers = [
+  "characterization: legacy behavior snapshots used during migration",
+  "integration: integration tests using simulated or local endpoints",
+  "hardware: tests requiring physical AutoWave hardware",
+  "property: Hypothesis property-based tests",
+  "visa_sim: integration tests using the PyVISA-sim backend",
+  "watchdog: concurrency and hang-regression tests with explicit timeout bounds",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = [
+  "Doxygen",
+  "Examples",
+  "src/AutoWave_class.py",
+  "src/Timer_class.py",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+packages = ["autowave"]
+strict = true
+warn_unused_configs = true
