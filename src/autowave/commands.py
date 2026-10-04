@@ -89,17 +89,13 @@ def _format_number(value: float) -> str:
 
 def set_generator_mode(mode: GeneratorMode) -> str:
     if not isinstance(mode, GeneratorMode):
-        raise AutoWaveValidationError(
-            f"mode must be GeneratorMode, got {type(mode).__name__}"
-        )
+        raise AutoWaveValidationError(f"mode must be GeneratorMode, got {type(mode).__name__}")
     return f"MOD {mode.value}"
 
 
 def set_trigger_mode(mode: TriggerMode) -> str:
     if not isinstance(mode, TriggerMode):
-        raise AutoWaveValidationError(
-            f"mode must be TriggerMode, got {type(mode).__name__}"
-        )
+        raise AutoWaveValidationError(f"mode must be TriggerMode, got {type(mode).__name__}")
     return f"TRIG:GEN {int(mode)}"
 
 
@@ -135,9 +131,7 @@ def list_directory(path: str) -> str:
 
 def directory_query(kind: DirectoryKind) -> str:
     if not isinstance(kind, DirectoryKind):
-        raise AutoWaveValidationError(
-            f"kind must be DirectoryKind, got {type(kind).__name__}"
-        )
+        raise AutoWaveValidationError(f"kind must be DirectoryKind, got {type(kind).__name__}")
     return f"DIR? {kind.value}"
 
 
