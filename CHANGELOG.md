@@ -2,6 +2,23 @@
 
 All notable project changes are recorded here.
 
+## 0.2.0 - 2026-10-04
+
+### Added
+
+- Pure byte-oriented AutoWave STX/ETX/checksum codec with defensive command/response bounds.
+- Explicit ACK, NAK, NOTREADY, BUSY, and decorated-data reply classification.
+- Typed AutoWave error hierarchy integrated with `scpi-driver-core` exception categories.
+- ASCII string-command encoder that refuses to frame `*` control-plane commands and refuses to guess the undocumented vendor code page.
+- Byte-preserving decorated-response parser and explicit text-decoding helper.
+- Deterministic Hypothesis profiles and property tests for framing round trips, corruption, truncation, control bytes, limits, and checksum invariants.
+- 90% branch-coverage gate for migrated `autowave` package code.
+
+### Changed
+
+- Public `autowave` namespace now exports the typed AutoWave exception hierarchy.
+- Protocol status parsing is separate from transport retry policy; BUSY is only classified here and is not automatically resent by the codec.
+
 ## 0.1.0 - 2026-10-04
 
 ### Added
