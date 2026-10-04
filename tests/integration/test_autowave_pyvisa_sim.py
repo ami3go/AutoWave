@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pyvisa
 import pytest
+import pyvisa
 
 from autowave.connection import AutoWaveConnection, discover_autowave_resources
 
