@@ -7,12 +7,20 @@ want to catch every device-driver error from this package.
 
 from __future__ import annotations
 
-from scpi_driver_core.exceptions import ConfigurationError, ProtocolError, ScpiDriverError
+from scpi_driver_core.exceptions import (
+    ConfigurationError,
+    IdentityError,
+    ProtocolError,
+    ScpiDriverError,
+)
 
 __all__ = [
     "AutoWaveBusyError",
     "AutoWaveChecksumError",
+    "AutoWaveConnectionStateError",
+    "AutoWaveDiscoveryError",
     "AutoWaveError",
+    "AutoWaveIdentityError",
     "AutoWaveNakError",
     "AutoWaveNotReadyError",
     "AutoWaveProtocolError",
@@ -27,6 +35,18 @@ class AutoWaveError(ScpiDriverError):
 
 class AutoWaveValidationError(AutoWaveError, ConfigurationError):
     """Invalid AutoWave command, value, or local protocol configuration."""
+
+
+class AutoWaveIdentityError(AutoWaveError, IdentityError):
+    """AutoWave identity response is malformed or identifies another device."""
+
+
+class AutoWaveConnectionStateError(AutoWaveError):
+    """Operation is not valid for the current AutoWave connection state."""
+
+
+class AutoWaveDiscoveryError(AutoWaveError):
+    """AutoWave VISA discovery could not produce an unambiguous result."""
 
 
 class AutoWaveProtocolError(AutoWaveError, ProtocolError):
@@ -68,4 +88,16 @@ class AutoWaveNotReadyError(AutoWaveResponseError):
 
 
 class AutoWaveBusyError(AutoWaveResponseError):
-    """Instrument returned BUSY (0x19)."""
+    """Instrument returned BUSY (0x19), optionally after bounded re-query."""
+
+    def __init__(
+        self,
+        message: str = "AutoWave returned BUSY (0x19)",
+        *,
+        raw: bytes | None = None,
+        attempts: int | None = None,
+        elapsed_s: float | None = None,
+    ) -> None:
+        super().__init__(message, raw=raw)
+        self.attempts = attempts
+        self.elapsed_s = elapsed_s

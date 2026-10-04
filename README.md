@@ -4,10 +4,9 @@ Python driver for the EM Test AutoWave generator.
 
 > Migration status: the repository is being migrated to the shared
 > [`scpi-driver-core`](https://github.com/ami3go/scpi-driver-core) transport/session
-> infrastructure. Version 0.2.0 adds the isolated, transport-free AutoWave protocol codec and typed
-> error hierarchy; VISA/session integration is introduced only in the next reviewed phase.
+> infrastructure. Version 0.3.0 adds the reviewed scpi-driver-core connection/session layer, bounded GPIB/VISA I/O, bootstrap, discovery, BUSY handling, and safe-query recovery. High-level AutoWave workflows remain in later phases.
 
-Current repository version: **0.2.0**.
+Current repository version: **0.3.0**.
 
 ## Installation
 
@@ -61,3 +60,12 @@ The vendor STX/ETX/checksum framing and reply parser are implemented in
 it does not open VISA resources, sleep, retry, recover sessions, or execute workflows.
 
 See [`docs/PROTOCOL.md`](docs/PROTOCOL.md) for the API and safety boundaries.
+
+## Connection layer
+
+The communication/session integration is implemented in
+[`autowave.connection`](src/autowave/connection.py). It owns explicit GPIB/VISA connection,
+AutoWave bootstrap, bounded framed transactions, vendor BUSY handling, discovery, and
+safe-query recovery without restoring physical/application state.
+
+See [`docs/CONNECTION.md`](docs/CONNECTION.md) for architecture and safety behavior.
